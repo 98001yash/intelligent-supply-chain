@@ -23,7 +23,7 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/users/**
+            - Path=/auth/**
 
         - id: order-service
           uri: lb://ORDER-SERVICE

@@ -19,7 +19,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto){
-        return ResponseEntity.ok(orderService.createOrder(orderDto));
+        return ResponseEntity.ok(orderService.placeOrder(orderDto));
     }
 
     @GetMapping("/customer/{customerId}")

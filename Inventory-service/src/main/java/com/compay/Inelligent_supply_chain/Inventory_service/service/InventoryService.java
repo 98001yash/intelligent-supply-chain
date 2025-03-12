@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,5 +52,20 @@ public class InventoryService {
         inventory.setQuantity(newQuantity);
         inventoryRepository.save(inventory);
         log.info("Inventory updated for SKU: {}", skuCode);
+    }
+
+    public boolean isProductAvailable(Long productId) {
+        return inventoryRepository.findByProductId(productId)
+                .map(inventory -> inventory.getQuantity() > 0)
+                .orElse(false);
+    }
+
+
+    @Transactional
+    public void updateStock(Long productId, Integer quantity) {
+        Inventory inventory =  inventoryRepository.findByProductId(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found in inventory"));
+        inventory.setQuantity(inventory.getQuantity() - quantity);
+        inventoryRepository.save(inventory);
     }
 }
