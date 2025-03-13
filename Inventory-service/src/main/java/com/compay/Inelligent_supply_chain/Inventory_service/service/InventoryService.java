@@ -45,6 +45,7 @@ public class InventoryService {
         return modelMapper.map(inventory, InventoryResponse.class);
     }
 
+
     // update inventory quantity
     public void updateInventory(String skuCode, Integer newQuantity){
         Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
@@ -68,4 +69,6 @@ public class InventoryService {
         inventory.setQuantity(inventory.getQuantity() - quantity);
         inventoryRepository.save(inventory);
     }
+
+
 }
