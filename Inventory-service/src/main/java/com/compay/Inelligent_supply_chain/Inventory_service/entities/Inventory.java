@@ -18,6 +18,7 @@ public class Inventory {
     private Long id;
     private String skuCode;
     private String productName;
+    private Long productId;
     private Integer quantity;
     private Double price;
 }
