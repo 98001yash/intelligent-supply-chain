@@ -1,6 +1,7 @@
 package com.compay.Inelligent_supply_chain.Payment_service.dtos;
 
 
+import com.compay.Inelligent_supply_chain.Payment_service.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

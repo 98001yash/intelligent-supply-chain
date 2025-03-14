@@ -34,9 +34,17 @@ public class PaymentController {
     @PatchMapping("/{paymentId}/status")
     public ResponseEntity<PaymentDto> updatePaymentStatus(
             @PathVariable Long paymentId,
-            @RequestParam PaymentStatus status) {
-        log.info("Updating payment status for Payment ID: {} to {}", paymentId, status);
-        PaymentDto updatedPayment = paymentService.updatePaymentStatus(paymentId, status);
+            @RequestParam String status) {  // ✅ Accept status as String
+
+        PaymentStatus paymentStatus;
+        try {
+            paymentStatus = PaymentStatus.valueOf(status.toUpperCase());  // ✅ Convert String to Enum
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid payment status: " + status);
+        }
+
+        PaymentDto updatedPayment = paymentService.updatePaymentStatus(paymentId, paymentStatus);
         return ResponseEntity.ok(updatedPayment);
     }
+
 }
