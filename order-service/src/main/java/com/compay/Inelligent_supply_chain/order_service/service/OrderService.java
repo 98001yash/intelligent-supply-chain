@@ -97,4 +97,19 @@ public class OrderService {
                 .orElseThrow(()->new ResourceNotFoundException("Order not found with ID: "+orderId));
         return modelMapper.map(order,OrderDto.class);
     }
+
+
+    public void cancelOrder(Long orderId){
+        Order order  =orderRepository.findById(orderId)
+                .orElseThrow(()->new ResourceNotFoundException("Order not found"));
+
+        if(order.getOrderStatus()==OrderStatus.CONFIRMED){
+            throw new RuntimeException("Cannot cancel a confirmed order");
+        }
+
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
+
+
 }
