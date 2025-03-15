@@ -99,17 +99,30 @@ public class OrderService {
     }
 
 
-    public void cancelOrder(Long orderId){
-        Order order  =orderRepository.findById(orderId)
-                .orElseThrow(()->new ResourceNotFoundException("Order not found"));
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
-        if(order.getOrderStatus()==OrderStatus.CONFIRMED){
-            throw new RuntimeException("Cannot cancel a confirmed order");
+        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
+            // Restore inventory
+            inventoryClient.updateStock(new InventoryUpdateRequest(order.getSkuCode(), order.getQuantity()));
+
+            // Trigger a refund
+            PaymentDto refundRequest = PaymentDto.builder()
+                    .orderId(orderId)
+                    .amount(order.getTotalPrice())
+                    .status(PaymentStatus.REFUNDED)
+                    .build();
+
+            paymentClient.processPayment(refundRequest);
         }
 
+        // Mark the order as cancelled
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
+
+        log.info("Order ID {} cancelled successfully", orderId);
     }
 
-
 }
+
