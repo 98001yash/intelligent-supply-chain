@@ -4,8 +4,10 @@ package com.compay.Inelligent_supply_chain.order_service.controller;
 import com.compay.Inelligent_supply_chain.order_service.dtos.OrderDto;
 import com.compay.Inelligent_supply_chain.order_service.dtos.PaymentDto;
 import com.compay.Inelligent_supply_chain.order_service.enums.OrderStatus;
+import com.compay.Inelligent_supply_chain.order_service.enums.PaymentStatus;
 import com.compay.Inelligent_supply_chain.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
 
     private final OrderService orderService;
@@ -29,9 +32,20 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long orderId,@RequestParam OrderStatus status){
-        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
+    public ResponseEntity<Void> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam String status) {
+
+        try {
+            PaymentStatus paymentStatus = PaymentStatus.valueOf(status.toUpperCase()); // ✅ Convert String to Enum
+            orderService.updateOrderStatus(orderId, paymentStatus);
+            return ResponseEntity.ok().build(); // ✅ Return 200 OK without body
+        } catch (IllegalArgumentException e) {
+            log.error("❌ Invalid Payment Status received: {}", status);
+            return ResponseEntity.badRequest().build(); // ✅ Return 400 Bad Request
+        }
     }
+
 
     @DeleteMapping("/{orderId}")
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId){

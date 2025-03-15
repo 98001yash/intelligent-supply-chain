@@ -1,6 +1,5 @@
 package com.compay.Inelligent_supply_chain.Payment_service.controller;
 
-
 import com.compay.Inelligent_supply_chain.Payment_service.dtos.PaymentDto;
 import com.compay.Inelligent_supply_chain.Payment_service.enums.PaymentStatus;
 import com.compay.Inelligent_supply_chain.Payment_service.service.PaymentService;
@@ -18,33 +17,37 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<PaymentDto> processPayment(@RequestBody PaymentDto paymentDto){
-        log.info("Received payment request for order ID: {}",paymentDto.getOrderId());
-        PaymentDto processedPayment= paymentService.processPayment(paymentDto);
+    public ResponseEntity<PaymentDto> processPayment(@RequestBody PaymentDto paymentDto) {
+        log.info("Received payment request for order ID: {}", paymentDto.getOrderId());
+        PaymentDto processedPayment = paymentService.processPayment(paymentDto);
         return ResponseEntity.ok(processedPayment);
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<PaymentDto>getPaymentByOrderId(@PathVariable Long orderId){
-        log.info("Fetching payment details for order ID: {}",orderId);
+    public ResponseEntity<PaymentDto> getPaymentByOrderId(@PathVariable Long orderId) {
+        log.info("Fetching payment details for order ID: {}", orderId);
         PaymentDto paymentDto = paymentService.getPaymentByOrderId(orderId);
         return ResponseEntity.ok(paymentDto);
     }
 
-    @PatchMapping("/{paymentId}/status")
-    public ResponseEntity<PaymentDto> updatePaymentStatus(
-            @PathVariable Long paymentId,
-            @RequestParam String status) {  // ✅ Accept status as String
+    @PatchMapping("/order/{orderId}/status")
+    public ResponseEntity<PaymentDto> updatePaymentStatusByOrderId(
+            @PathVariable Long orderId,
+            @RequestParam String status) {
 
-        PaymentStatus paymentStatus;
         try {
-            paymentStatus = PaymentStatus.valueOf(status.toUpperCase());  // ✅ Convert String to Enum
+            PaymentStatus paymentStatus = PaymentStatus.valueOf(status.toUpperCase()); // Convert String to Enum
+            PaymentDto updatedPayment = paymentService.updatePaymentStatus(orderId, paymentStatus);
+            return ResponseEntity.ok(updatedPayment);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid payment status: " + status);
+            log.error("Invalid payment status received: {}", status);
+            return ResponseEntity.badRequest().body(null);
         }
-
-        PaymentDto updatedPayment = paymentService.updatePaymentStatus(paymentId, paymentStatus);
-        return ResponseEntity.ok(updatedPayment);
     }
 
+    @GetMapping("/status/{orderId}")
+    public ResponseEntity<PaymentDto> getPaymentStatus(@PathVariable Long orderId) {
+        PaymentDto paymentStatus = paymentService.getPaymentStatus(orderId);
+        return ResponseEntity.ok(paymentStatus);
+    }
 }

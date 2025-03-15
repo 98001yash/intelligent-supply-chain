@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,36 +42,69 @@ public class OrderService {
         Order order = modelMapper.map(orderDto, Order.class);
         order.setOrderStatus(OrderStatus.PENDING);
         Order savedOrder = orderRepository.save(order);
-        log.info("Order placed successfully with ID: {}", savedOrder.getId());
+        log.info("✅ Order placed successfully with ID: {}", savedOrder.getId());
 
+        // Initiate Payment
         PaymentDto paymentDto = PaymentDto.builder()
                 .orderId(savedOrder.getId())
                 .amount(orderDto.getTotalPrice())
                 .status(PaymentStatus.PENDING)
                 .build();
 
-        log.info("Initiating payment for Order ID: {}", savedOrder.getId());
-        PaymentDto processedPayment = paymentClient.processPayment(paymentDto);
-        log.info("Payment processed with status: {}", processedPayment.getStatus());
+        log.info("💰 Initiating payment for Order ID: {}", savedOrder.getId());
+        paymentClient.processPayment(paymentDto);
 
-        if (processedPayment.getStatus() == PaymentStatus.SUCCESS) {
+        // 🔄 Retry to get final payment status
+        PaymentDto finalPayment = getFinalPaymentStatus(savedOrder.getId());
+        log.info("📌 Final Payment Status for Order ID {}: {}", savedOrder.getId(), finalPayment.getStatus());
+
+        if (finalPayment.getStatus() == PaymentStatus.SUCCESS) {
             savedOrder.setOrderStatus(OrderStatus.CONFIRMED);
 
-            log.info("Updating stock for SKU: {}", orderDto.getSkuCode());
+            log.info("🛒 Updating stock for SKU: {}", orderDto.getSkuCode());
             try {
                 inventoryClient.updateStock(new InventoryUpdateRequest(orderDto.getSkuCode(), orderDto.getQuantity()));
             } catch (Exception e) {
-                log.error("Failed to update stock for SKU: {}", orderDto.getSkuCode(), e);
+                log.error("❌ Failed to update stock for SKU: {}", orderDto.getSkuCode(), e);
                 throw new RuntimeException("Stock update failed");
             }
-        } else {
+        }
+        // ✅ Instead of cancelling, mark it as "PROCESSING_PAYMENT"
+        else if (finalPayment.getStatus() == PaymentStatus.PENDING) {
+            savedOrder.setOrderStatus(OrderStatus.PROCESSING_PAYMENT);
+            log.warn("⌛ Order ID {} is awaiting payment confirmation", savedOrder.getId());
+        }
+        else {
             savedOrder.setOrderStatus(OrderStatus.CANCELLED);
-            log.warn("Order ID {} was cancelled due to failed payment", savedOrder.getId());
+            log.warn("❌ Order ID {} was cancelled due to failed payment", savedOrder.getId());
         }
 
         orderRepository.save(savedOrder);
         return modelMapper.map(savedOrder, OrderDto.class);
     }
+
+
+    private PaymentDto getFinalPaymentStatus(Long orderId) {
+        PaymentDto paymentDto = null;
+        int retryCount = 3;
+
+        for (int i = 0; i < retryCount; i++) {
+            try {
+                Thread.sleep(2000);  // Wait for 2 seconds before retrying
+                paymentDto = paymentClient.getPaymentByOrderId(orderId);
+
+                if (paymentDto.getStatus() != PaymentStatus.PENDING) {
+                    return paymentDto; // ✅ Return if status is SUCCESS or FAILED
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Error while waiting for payment status", e);
+            }
+        }
+
+        return paymentDto; // Might still be PENDING after retries
+    }
+
 
     public List<OrderDto> getOrdersByCustomer(Long customerId) {
         return orderRepository.findByCustomerId(customerId).stream()
@@ -78,12 +112,28 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public OrderDto updateOrderStatus(Long orderId, OrderStatus status) {
+    public void updateOrderStatus(Long orderId, PaymentStatus status) {
+        log.info("📢 Received payment update for Order ID: {}. Updating order status...", orderId);
+
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
-        order.setOrderStatus(status);
-        return modelMapper.map(orderRepository.save(order), OrderDto.class);
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found for ID: " + orderId));
+
+        // ✅ Convert PaymentStatus → OrderStatus
+        if (status == PaymentStatus.SUCCESS) {
+            order.setOrderStatus(OrderStatus.CONFIRMED);
+            log.info("✅ Order ID: {} is now CONFIRMED", orderId);
+        } else if (status == PaymentStatus.FAILED) {
+            order.setOrderStatus(OrderStatus.CANCELLED);
+            log.warn("❌ Order ID: {} is CANCELLED due to failed payment", orderId);
+        } else {
+            order.setOrderStatus(OrderStatus.PENDING);
+            log.warn("⌛ Order ID: {} is still PENDING", orderId);
+        }
+
+        orderRepository.save(order);
+        log.info("🔄 Order status updated in DB for Order ID: {}", orderId);
     }
+
 
     @Transactional
     public void deleteOrder(Long orderId) {
@@ -126,16 +176,42 @@ public class OrderService {
 
 
     public void handlePaymentUpdate(PaymentDto paymentDto){
-        Order order = orderRepository.findById(paymentDto.getOrderId())
-                .orElseThrow(()->new ResourceNotFoundException("Order  not found"));
+        log.info("🔄 Handling payment update for Order ID: {}", paymentDto.getOrderId());
 
-        if(paymentDto.getStatus()==PaymentStatus.SUCCESS){
+        Order order = orderRepository.findById(paymentDto.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        if(paymentDto.getStatus() == PaymentStatus.SUCCESS){
             order.setOrderStatus(OrderStatus.CONFIRMED);
-        }else if(paymentDto.getStatus()==PaymentStatus.FAILED){
+            log.info("✅ Order ID {} confirmed after successful payment", order.getId());
+        } else if(paymentDto.getStatus() == PaymentStatus.FAILED){
             order.setOrderStatus(OrderStatus.CANCELLED);
+            log.warn("❌ Order ID {} cancelled due to payment failure", order.getId());
         }
+
         orderRepository.save(order);
     }
+
+
+    @Scheduled(fixedDelay = 60000) // Runs every 60 seconds
+    public void checkPendingPayments() {
+        List<Order> pendingOrders = orderRepository.findByOrderStatus(OrderStatus.PROCESSING_PAYMENT);
+        for (Order order : pendingOrders) {
+            PaymentDto paymentStatus = paymentClient.getPaymentStatus(order.getId());
+
+            if (PaymentStatus.SUCCESS.equals(paymentStatus.getStatus())) {
+                order.setOrderStatus(OrderStatus.CONFIRMED);
+                log.info("✅ Order ID {} confirmed after successful payment", order.getId());
+                orderRepository.save(order);
+            }
+            else if (PaymentStatus.FAILED.equals(paymentStatus.getStatus())) {
+                order.setOrderStatus(OrderStatus.CANCELLED);
+                log.warn("❌ Order ID {} cancelled due to payment failure", order.getId());
+                orderRepository.save(order);
+            }
+        }
+    }
+
 
 }
 

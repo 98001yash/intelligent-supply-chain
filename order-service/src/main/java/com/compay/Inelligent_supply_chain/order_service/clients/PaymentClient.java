@@ -21,5 +21,7 @@ public interface  PaymentClient {
     @PatchMapping("/{paymentId}/status")
     PaymentDto updatePaymentStatus(@PathVariable Long paymentId, @RequestParam PaymentStatus status);
 
+    @GetMapping("/payments/status/{orderId}")
+    PaymentDto getPaymentStatus(@PathVariable("orderId") Long orderId);
 
 }
