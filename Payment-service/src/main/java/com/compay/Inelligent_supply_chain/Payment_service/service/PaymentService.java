@@ -4,6 +4,7 @@ import com.compay.Inelligent_supply_chain.Payment_service.clients.OrderClient;
 import com.compay.Inelligent_supply_chain.Payment_service.dtos.PaymentDto;
 import com.compay.Inelligent_supply_chain.Payment_service.entities.Payment;
 import com.compay.Inelligent_supply_chain.Payment_service.enums.PaymentStatus;
+
 import com.compay.Inelligent_supply_chain.Payment_service.exceptions.ResourceNotFoundException;
 import com.compay.Inelligent_supply_chain.Payment_service.reposirtory.PaymentRepository;
 
@@ -11,10 +12,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,8 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final ModelMapper modelMapper;
-    private final OrderClient orderClient; // ✅ Added missing OrderClient
+    private final OrderClient orderClient;
+
 
     @Transactional
     public PaymentDto processPayment(PaymentDto paymentDto) {
@@ -51,7 +54,7 @@ public class PaymentService {
     }
 
     public PaymentDto updatePaymentStatus(Long orderId, PaymentStatus status) {
-        log.info("🔄 Updating payment status in DB for Order ID: {} to {}", orderId, status);
+        log.info(" Updating payment status in DB for Order ID: {} to {}", orderId, status);
 
         Payment payment = paymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for Order ID: " + orderId));
@@ -60,12 +63,12 @@ public class PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
         paymentRepository.save(payment);
 
-        log.info("✅ Payment status successfully updated for Order ID: {}. New Status: {}", orderId, payment.getStatus());
+        log.info(" Payment status successfully updated for Order ID: {}. New Status: {}", orderId, payment.getStatus());
 
-        // ✅ Call OrderService to notify about payment update
+
         try {
             orderClient.updateOrderStatus(payment.getOrderId(), status);
-            log.info("📢 OrderService successfully notified about payment update.");
+            log.info(" OrderService successfully notified about payment update.");
         } catch (Exception e) {
             log.error("⚠️ Failed to notify OrderService", e);
         }
