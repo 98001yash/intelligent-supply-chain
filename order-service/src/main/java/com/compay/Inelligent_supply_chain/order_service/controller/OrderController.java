@@ -2,6 +2,7 @@ package com.compay.Inelligent_supply_chain.order_service.controller;
 
 
 import com.compay.Inelligent_supply_chain.order_service.dtos.OrderDto;
+import com.compay.Inelligent_supply_chain.order_service.dtos.PaymentDto;
 import com.compay.Inelligent_supply_chain.order_service.enums.OrderStatus;
 import com.compay.Inelligent_supply_chain.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -49,4 +50,11 @@ public class OrderController {
         orderService.cancelOrder(orderId);
         return ResponseEntity.ok("Order cancelled successfully");
     }
+
+    @PostMapping("/payment/update")
+    public ResponseEntity<String> handlePaymentUpdate(@RequestBody PaymentDto paymentDto) {
+        orderService.handlePaymentUpdate(paymentDto);
+        return ResponseEntity.ok("Payment update processed");
+    }
+
 }

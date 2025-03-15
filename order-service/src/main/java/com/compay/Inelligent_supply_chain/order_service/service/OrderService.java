@@ -124,5 +124,18 @@ public class OrderService {
         log.info("Order ID {} cancelled successfully", orderId);
     }
 
+
+    public void handlePaymentUpdate(PaymentDto paymentDto){
+        Order order = orderRepository.findById(paymentDto.getOrderId())
+                .orElseThrow(()->new ResourceNotFoundException("Order  not found"));
+
+        if(paymentDto.getStatus()==PaymentStatus.SUCCESS){
+            order.setOrderStatus(OrderStatus.CONFIRMED);
+        }else if(paymentDto.getStatus()==PaymentStatus.FAILED){
+            order.setOrderStatus(OrderStatus.CANCELLED);
+        }
+        orderRepository.save(order);
+    }
+
 }
 
