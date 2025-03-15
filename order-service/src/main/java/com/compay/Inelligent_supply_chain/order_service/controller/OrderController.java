@@ -37,4 +37,10 @@ public class OrderController {
         orderService.deleteOrder(orderId);
         return ResponseEntity.ok("Order deleted successfully");
     }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long orderId){
+        OrderDto order = orderService.getOrderById(orderId);
+        return ResponseEntity.ok(order);
+    }
 }

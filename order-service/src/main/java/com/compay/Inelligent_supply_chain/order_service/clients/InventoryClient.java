@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "inventory-service")
 public interface InventoryClient {
 
-    @GetMapping("/inventory/check/{productId}")
-    Boolean checkStock(@PathVariable Long productId);
+    @GetMapping("/inventory/check/{skuCode}")
+    Boolean checkStock(@PathVariable("skuCode") String skuCode);
+
 
     @PutMapping("/inventory/update")
     void updateStock(@RequestBody InventoryUpdateRequest request);
+
 }

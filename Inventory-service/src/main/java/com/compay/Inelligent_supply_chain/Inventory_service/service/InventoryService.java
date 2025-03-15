@@ -1,6 +1,5 @@
 package com.compay.Inelligent_supply_chain.Inventory_service.service;
 
-
 import com.compay.Inelligent_supply_chain.Inventory_service.dtos.InventoryRequest;
 import com.compay.Inelligent_supply_chain.Inventory_service.dtos.InventoryResponse;
 import com.compay.Inelligent_supply_chain.Inventory_service.entities.Inventory;
@@ -23,52 +22,57 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
 
-    // add new inventory
-    public void addInventory(InventoryRequest request){
+    public InventoryResponse addInventory(InventoryRequest request) {
         Inventory inventory = modelMapper.map(request, Inventory.class);
-        inventoryRepository.save(inventory);
-        log.info("Inventory saved: {}",inventory);
+        Inventory savedInventory = inventoryRepository.save(inventory);
+        return modelMapper.map(savedInventory, InventoryResponse.class);
     }
 
-    // get all inventory items
-    public List<InventoryResponse> getAllInventory(){
-        List<Inventory> inventoryList = inventoryRepository.findAll();
-        return inventoryList.stream()
-                .map(inventory->modelMapper.map(inventory, InventoryResponse.class))
+    public List<InventoryResponse> getAllInventory() {
+        return inventoryRepository.findAll().stream()
+                .map(inventory -> modelMapper.map(inventory, InventoryResponse.class))
                 .collect(Collectors.toList());
     }
 
-    // get inventory by SKU code
-    public InventoryResponse getInventoryBySkuCode(String skuCode){
+    public InventoryResponse getInventoryBySkuCode(String skuCode) {
         Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
-                .orElseThrow(()->new ResourceNotFoundException("Inventory not found for SKU: "+skuCode));
+                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found for SKU: " + skuCode));
         return modelMapper.map(inventory, InventoryResponse.class);
     }
 
-
-    // update inventory quantity
-    public void updateInventory(String skuCode, Integer newQuantity){
+    @Transactional
+    public InventoryResponse updateInventory(String skuCode, Integer newQuantity) {
         Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
-                .orElseThrow(()->new ResourceNotFoundException("Inventory not found for SKU: "+skuCode));
-        inventory.setQuantity(newQuantity);
-        inventoryRepository.save(inventory);
-        log.info("Inventory updated for SKU: {}", skuCode);
+                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found for SKU: " + skuCode));
+
+        if (newQuantity <= 0) {
+            throw new RuntimeException("Invalid quantity update");
+        }
+
+        inventory.setQuantity(inventory.getQuantity() + newQuantity);
+        Inventory updatedInventory = inventoryRepository.save(inventory);
+
+        log.info("Inventory updated for SKU: {} with new quantity: {}", skuCode, updatedInventory.getQuantity());
+        return modelMapper.map(updatedInventory, InventoryResponse.class);
     }
 
-    public boolean isProductAvailable(Long productId) {
-        return inventoryRepository.findByProductId(productId)
+    public boolean isProductAvailable(String skuCode) {
+        return inventoryRepository.findBySkuCode(skuCode)
                 .map(inventory -> inventory.getQuantity() > 0)
                 .orElse(false);
     }
 
-
     @Transactional
-    public void updateStock(Long productId, Integer quantity) {
-        Inventory inventory =  inventoryRepository.findByProductId(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found in inventory"));
+    public void updateStock(String skuCode, Integer quantity) {
+        Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in inventory"));
+
+        if (inventory.getQuantity() < quantity) {
+            throw new RuntimeException("Not enough stock available");
+        }
+
         inventory.setQuantity(inventory.getQuantity() - quantity);
         inventoryRepository.save(inventory);
+        log.info("Stock updated for SKU: {}. New quantity: {}", skuCode, inventory.getQuantity());
     }
-
-
 }

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InventoryResponse {
 
+   private Long id;
     private String skuCode;
     private String productName;
     private Integer quantity;

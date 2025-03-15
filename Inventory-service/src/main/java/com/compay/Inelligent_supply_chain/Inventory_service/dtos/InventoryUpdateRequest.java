@@ -12,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class InventoryUpdateRequest {
 
-    private Long productId;
+    private String skuCode;
     private Integer quantity;
 }

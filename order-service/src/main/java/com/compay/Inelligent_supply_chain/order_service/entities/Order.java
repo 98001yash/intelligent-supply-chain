@@ -24,7 +24,7 @@ public class Order {
     private Long id;
     private Long customerId;
     private Long supplierId;
-    private Long productId;
+    private String skuCode;
     private Integer quantity;
     private Double totalPrice;
 

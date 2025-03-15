@@ -31,20 +31,18 @@ public class OrderService {
 
     @Transactional
     public OrderDto placeOrder(OrderDto orderDto) {
-        log.info("Checking stock availability for product ID: {}", orderDto.getProductId());
-        boolean isAvailable = inventoryClient.checkStock(orderDto.getProductId());
+        log.info("Checking stock availability for SKU: {}", orderDto.getSkuCode());
+        boolean isAvailable = inventoryClient.checkStock(orderDto.getSkuCode());
 
         if (!isAvailable) {
             throw new RuntimeException("Product is out of stock");
         }
 
-        // ✅ Step 1: Create Order with PENDING Status
         Order order = modelMapper.map(orderDto, Order.class);
         order.setOrderStatus(OrderStatus.PENDING);
         Order savedOrder = orderRepository.save(order);
         log.info("Order placed successfully with ID: {}", savedOrder.getId());
 
-        // ✅ Step 2: Process Payment
         PaymentDto paymentDto = PaymentDto.builder()
                 .orderId(savedOrder.getId())
                 .amount(orderDto.getTotalPrice())
@@ -55,27 +53,27 @@ public class OrderService {
         PaymentDto processedPayment = paymentClient.processPayment(paymentDto);
         log.info("Payment processed with status: {}", processedPayment.getStatus());
 
-        // ✅ Step 3: Update Order Status Based on Payment Response
         if (processedPayment.getStatus() == PaymentStatus.SUCCESS) {
             savedOrder.setOrderStatus(OrderStatus.CONFIRMED);
 
-            // ✅ Step 4: Update Stock in InventoryService
-            log.info("Updating stock for product ID: {}", orderDto.getProductId());
-            inventoryClient.updateStock(new InventoryUpdateRequest(orderDto.getProductId(), orderDto.getQuantity()));
-
+            log.info("Updating stock for SKU: {}", orderDto.getSkuCode());
+            try {
+                inventoryClient.updateStock(new InventoryUpdateRequest(orderDto.getSkuCode(), orderDto.getQuantity()));
+            } catch (Exception e) {
+                log.error("Failed to update stock for SKU: {}", orderDto.getSkuCode(), e);
+                throw new RuntimeException("Stock update failed");
+            }
         } else {
             savedOrder.setOrderStatus(OrderStatus.CANCELLED);
             log.warn("Order ID {} was cancelled due to failed payment", savedOrder.getId());
         }
 
-        // ✅ Save final order status
         orderRepository.save(savedOrder);
         return modelMapper.map(savedOrder, OrderDto.class);
     }
 
     public List<OrderDto> getOrdersByCustomer(Long customerId) {
-        List<Order> orders = orderRepository.findByCustomerId(customerId);
-        return orders.stream()
+        return orderRepository.findByCustomerId(customerId).stream()
                 .map(order -> modelMapper.map(order, OrderDto.class))
                 .collect(Collectors.toList());
     }
@@ -92,5 +90,11 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
         orderRepository.delete(order);
+    }
+
+    public OrderDto getOrderById(Long orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()->new ResourceNotFoundException("Order not found with ID: "+orderId));
+        return modelMapper.map(order,OrderDto.class);
     }
 }
