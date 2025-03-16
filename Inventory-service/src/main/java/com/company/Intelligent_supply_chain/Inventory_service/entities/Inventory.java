@@ -21,6 +21,7 @@ public class Inventory {
     private String skuCode;
     private String productName;
     private Long productId;
-    private Integer quantity;
+    private Integer quantity; // available stock
+    private Integer reservedQuantity;
     private Double price;
 }

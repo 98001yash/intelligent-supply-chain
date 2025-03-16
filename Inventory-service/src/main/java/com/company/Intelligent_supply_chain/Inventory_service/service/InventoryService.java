@@ -75,4 +75,37 @@ public class InventoryService {
         inventoryRepository.save(inventory);
         log.info("Stock updated for SKU: {}. New quantity: {}", skuCode, inventory.getQuantity());
     }
+
+
+    @Transactional
+    public boolean reserveStock(String skuCode, Integer quantity){
+        Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
+                .orElseThrow(()->new ResourceNotFoundException("Product not found in inventory"));
+
+        if(inventory.getQuantity()>=quantity){
+            inventory.setQuantity(inventory.getQuantity() - quantity);
+            inventory.setReservedQuantity(inventory.getReservedQuantity()+quantity);
+            inventoryRepository.save(inventory);
+            log.info("stock reserved: {} units for SKU: {}",quantity, skuCode);
+            return true;
+        }else {
+            log.warn("Not enough stock available for reservation: {}",skuCode);
+            return false;
+        }
+    }
+
+
+    public void releaseStock(String skuCode, Integer quantity){
+        Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
+                .orElseThrow(()->new ResourceNotFoundException("Product not found in inventory"));
+
+        if(inventory.getReservedQuantity()>=quantity){
+            inventory.setQuantity(inventory.getQuantity()+ quantity);
+            inventory.setReservedQuantity(inventory.getReservedQuantity()- quantity);
+            inventoryRepository.save(inventory);
+            log.info("Reserved stock released: {} units for SKU: {}",quantity, skuCode);
+        }else {
+            log.warn("Attempted to release more stock then reserved for SKU: {}",skuCode);
+        }
+    }
 }
