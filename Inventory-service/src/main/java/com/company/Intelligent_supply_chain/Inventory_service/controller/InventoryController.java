@@ -1,8 +1,6 @@
 package com.company.Intelligent_supply_chain.Inventory_service.controller;
 
-import com.company.Intelligent_supply_chain.Inventory_service.dtos.InventoryRequest;
-import com.company.Intelligent_supply_chain.Inventory_service.dtos.InventoryResponse;
-import com.company.Intelligent_supply_chain.Inventory_service.dtos.InventoryUpdateRequest;
+import com.company.Intelligent_supply_chain.Inventory_service.dtos.*;
 import com.company.Intelligent_supply_chain.Inventory_service.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,5 +50,38 @@ public class InventoryController {
         log.info("Updating stock for SKU: {}", request.getSkuCode());
         inventoryService.updateStock(request.getSkuCode(), request.getQuantity());
         return ResponseEntity.ok("Inventory updated successfully!");
+    }
+
+
+
+    // reserve stock for the order
+    @PostMapping("/reserve")
+    public ResponseEntity<StockResponse> reserveStock(@RequestBody StockRequest request){
+        boolean reserved = inventoryService.reserveStock(request.getSkuCode(), request.getQuantity());
+
+        StockResponse response = StockResponse.builder()
+                .skuCode(request.getSkuCode())
+                .requestedQuantity(request.getQuantity())
+                .quantity(inventoryService.getAvailableStock(request.getSkuCode())) // fetch updated stock
+                .success(reserved)
+                .message(reserved ? "Stock reserved succesfully." : "Not enough stock available.")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    // Release reserved stock when an order is cancelled
+    @PostMapping("/release")
+    public ResponseEntity<StockResponse> releaseStock(@RequestBody StockRequest request){
+        inventoryService.releaseStock(request.getSkuCode(), request.getQuantity());
+
+        StockResponse response = StockResponse.builder()
+                .skuCode(request.getSkuCode())
+                .requestedQuantity(request.getQuantity())
+                .quantity(inventoryService.getAvailableStock(request.getSkuCode()))
+                .success(true)
+                .message("Reserved stock released successfully")
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 }

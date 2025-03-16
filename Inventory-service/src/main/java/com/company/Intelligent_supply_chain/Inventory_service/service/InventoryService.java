@@ -108,4 +108,10 @@ public class InventoryService {
             log.warn("Attempted to release more stock then reserved for SKU: {}",skuCode);
         }
     }
+
+    public Integer getAvailableStock(String skuCode){
+        return inventoryRepository.findBySkuCode(skuCode)
+                .map(Inventory::getQuantity)
+                .orElse(0);
+    }
 }
