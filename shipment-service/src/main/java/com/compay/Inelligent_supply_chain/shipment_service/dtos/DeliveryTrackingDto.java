@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class DeliveryTrackingDto {
-
+    private Long shipmentId;
     private Long orderId;
     private Double latitude;
     private Double longitude;

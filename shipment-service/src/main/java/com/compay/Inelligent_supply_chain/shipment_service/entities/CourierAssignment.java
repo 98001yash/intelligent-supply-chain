@@ -15,14 +15,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class CourierAssignment {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long orderId;
-
     private Long courierId;
+    private Long orderId;
     private String courierName;
-
     private LocalDateTime assignedAt;
     private LocalDateTime updatedAt;
 

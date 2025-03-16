@@ -18,8 +18,6 @@ public class DeliveryTracking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private Long shipmentId;
 
     private Long orderId;
