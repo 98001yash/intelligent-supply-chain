@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class CourierAssignmentDto {
     private Long orderId;
     private Long courierId;
+    private String courierName;
     private LocalDateTime assignedAt;
     private DeliveryStatus status;
 

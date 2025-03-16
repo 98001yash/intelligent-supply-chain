@@ -21,8 +21,10 @@ public class CourierAssignment {
     private Long orderId;
 
     private Long courierId;
+    private String courierName;
 
-    private LocalDateTime assignmentAt;
+    private LocalDateTime assignedAt;
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status;
