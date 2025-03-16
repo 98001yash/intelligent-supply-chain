@@ -20,6 +20,8 @@ public class DeliveryTracking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long shipmentId;
+
     private Long orderId;
     private Double latitude;
     private Double longitude;
