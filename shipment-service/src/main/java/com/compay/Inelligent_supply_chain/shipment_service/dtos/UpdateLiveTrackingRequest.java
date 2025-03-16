@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class UpdateLiveTrackingRequest {
+
+    private Long orderId;
     private Long shipmentId;
     private Double latitude;
     private Double longitude;

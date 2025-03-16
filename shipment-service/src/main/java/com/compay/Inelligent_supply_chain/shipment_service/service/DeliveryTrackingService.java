@@ -24,11 +24,13 @@ public class DeliveryTrackingService {
 
     public DeliveryTrackingDto updateLiveTracking(UpdateLiveTrackingRequest request) {
         log.info("Updating live tracking for Shipment ID: {} to [{}, {}]",
-                request.getShipmentId(), request.getLatitude(), request.getLongitude());
+               request.getOrderId(), request.getShipmentId(), request.getLatitude(), request.getLongitude());
 
         DeliveryTracking tracking = deliveryTrackingRepository.findByShipmentId(request.getShipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tracking not found for Shipment ID: " + request.getShipmentId()));
 
+
+        tracking.setOrderId(request.getOrderId());
         tracking.setLatitude(request.getLatitude());
         tracking.setLongitude(request.getLongitude());
         tracking.setLastUpdated(LocalDateTime.now());
