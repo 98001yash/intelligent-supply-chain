@@ -22,6 +22,6 @@ public class Inventory {
     private String productName;
     private Long productId;
     private Integer quantity; // available stock
-    private Integer reservedQuantity;
+    private Integer reservedQuantity = 0;
     private Double price;
 }

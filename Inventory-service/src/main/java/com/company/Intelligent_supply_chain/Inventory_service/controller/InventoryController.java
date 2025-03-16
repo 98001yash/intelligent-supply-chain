@@ -64,7 +64,7 @@ public class InventoryController {
                 .requestedQuantity(request.getQuantity())
                 .quantity(inventoryService.getAvailableStock(request.getSkuCode())) // fetch updated stock
                 .success(reserved)
-                .message(reserved ? "Stock reserved succesfully." : "Not enough stock available.")
+                .message(reserved ? "Stock reserved successfully." : "Not enough stock available.")
                 .build();
         return ResponseEntity.ok(response);
     }
