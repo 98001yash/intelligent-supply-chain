@@ -1,0 +1,10 @@
+spring:
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: notification-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.company.Intelligent_supply_chain.Inventory_service.dtos"
+        spring.json.value.default.type: "com.company.Intelligent_supply_chain.Inventory_service.dtos.LowStockAlert"

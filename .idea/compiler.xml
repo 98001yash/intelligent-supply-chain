@@ -13,22 +13,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
         <module name="api-gateway" />
-        <module name="notification-service" />
-      </profile>
-      <profile name="Annotation profile for shipment-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-        </processorPath>
         <module name="shipment-service" />
         <module name="order-service" />
         <module name="user-service" />
+        <module name="notification-service" />
         <module name="Payment-service" />
         <module name="Inventory-service" />
       </profile>
@@ -36,11 +27,11 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Inventory-service" options="-parameters -parameters" />
+      <module name="Inventory-service" options="-parameters" />
       <module name="Payment-service" options="-parameters -parameters" />
       <module name="api-gateway" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
-      <module name="notification-service" options="-parameters" />
+      <module name="notification-service" options="-parameters -parameters" />
       <module name="order-service" options="-parameters -parameters" />
       <module name="shipment-service" options="-parameters -parameters" />
       <module name="user-service" options="-parameters -parameters" />

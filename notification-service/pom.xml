@@ -39,10 +39,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<!-- Example Maven dependencies -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
+			<version>3.3.3</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
