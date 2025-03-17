@@ -21,6 +21,7 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
+    private final KafkaEventProducer kafkaEventProducer;
 
     public InventoryResponse addInventory(InventoryRequest request) {
         Inventory inventory = modelMapper.map(request, Inventory.class);
@@ -74,6 +75,9 @@ public class InventoryService {
         inventory.setQuantity(inventory.getQuantity() - quantity);
         inventoryRepository.save(inventory);
         log.info("Stock updated for SKU: {}. New quantity: {}", skuCode, inventory.getQuantity());
+
+        // check and publish low stock alert
+       kafkaEventProducer.checkAndPublishLowStockAlert(skuCode);
     }
 
 
