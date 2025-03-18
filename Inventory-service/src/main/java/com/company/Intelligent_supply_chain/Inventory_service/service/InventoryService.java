@@ -118,4 +118,5 @@ public class InventoryService {
                 .map(Inventory::getQuantity)
                 .orElse(0);
     }
+    
 }
