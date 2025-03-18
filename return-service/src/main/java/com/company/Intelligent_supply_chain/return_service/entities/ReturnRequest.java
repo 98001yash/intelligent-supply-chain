@@ -20,5 +20,6 @@ public class ReturnRequest {
     private Long id;
     private Long orderId;
     private String reason;
+    private String status;
     private LocalDateTime requestDate;
 }

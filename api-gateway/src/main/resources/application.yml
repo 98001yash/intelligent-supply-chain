@@ -45,6 +45,11 @@ spring:
           predicates:
             - Path=/shipments/**
 
+        - id: return-service
+          uri: lb://RETURN-SERVICE
+          predicates:
+            - Path=/returns/**
+
 
 feign:
   hystrix:
