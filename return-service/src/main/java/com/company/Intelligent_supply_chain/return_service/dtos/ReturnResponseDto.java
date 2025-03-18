@@ -6,12 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReturnResponseDto {
-
     private Long returnId;
     private Long orderId;
     private String reason;
