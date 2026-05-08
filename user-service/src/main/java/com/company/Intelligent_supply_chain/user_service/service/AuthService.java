@@ -24,16 +24,13 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public UserDto signUp(AuthRequestDto authRequestDto){
-        // chcek if the user already exists
         boolean exists = userRepository.existsByEmail(authRequestDto.getEmail());
         if(exists){
             throw new BadRequestException("User already exists, cannot signup again");
         }
 
-        // map request to User entity
         User user = modelMapper.map(authRequestDto, User.class);
 
-        // check if the admin code is provided and valid
      if("ADMIN123".equals(authRequestDto.getAdminCode())){
          user.setRole(Role.ADMIN);
      }else if(authRequestDto.getRole()==null){
@@ -42,14 +39,9 @@ public class AuthService {
          user.setRole(authRequestDto.getRole());
      }
 
-        //hash the password before saving
         user.setPassword(PasswordUtils.hashPassword(authRequestDto.getPassword()));
 
-
-     // save the user in the database
         User savedUser = userRepository.save(user);
-
-        // map saved User entity to UserDto for response
         return modelMapper.map(savedUser, UserDto.class);
     }
 
