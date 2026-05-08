@@ -27,15 +27,15 @@ public class KafkaEventProducer {
         if (inventory.getQuantity() < 5) { // Low stock threshold
             LowStockAlert alert = new LowStockAlert(skuCode, inventory.getQuantity());
 
-            log.info("🔴 Sending Kafka Message - Key: {}, Payload: {}", skuCode, alert);
+            log.info(" Sending Kafka Message - Key: {}, Payload: {}", skuCode, alert);
 
             // Sending message with explicit key
             kafkaTemplate.send("low-stock-alerts", skuCode, alert)
                     .whenComplete((result, ex) -> {
                         if (ex != null) {
-                            log.error("❌ Kafka Send Failed", ex);
+                            log.error(" Kafka Send Failed", ex);
                         } else {
-                            log.info("✅ Kafka Message Sent - Key: {}, Partition: {}", skuCode, result.getRecordMetadata().partition());
+                            log.info("Kafka Message Sent - Key: {}, Partition: {}", skuCode, result.getRecordMetadata().partition());
                         }
                     });
         }
