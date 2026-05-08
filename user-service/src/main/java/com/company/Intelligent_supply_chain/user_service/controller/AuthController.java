@@ -1,7 +1,6 @@
 package com.company.Intelligent_supply_chain.user_service.controller;
 
 
-import com.company.Intelligent_supply_chain.user_service.dtos.AuthRequestDto;
 import com.company.Intelligent_supply_chain.user_service.dtos.UserDto;
 import com.company.Intelligent_supply_chain.user_service.exceptions.BadRequestException;
 import com.company.Intelligent_supply_chain.user_service.service.AuthService;

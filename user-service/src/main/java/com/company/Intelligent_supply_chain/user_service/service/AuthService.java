@@ -1,7 +1,6 @@
 package com.company.Intelligent_supply_chain.user_service.service;
 
 
-import com.company.Intelligent_supply_chain.user_service.dtos.AuthRequestDto;
 import com.company.Intelligent_supply_chain.user_service.dtos.UserDto;
 import com.company.Intelligent_supply_chain.user_service.entities.User;
 import com.company.Intelligent_supply_chain.user_service.enums.Role;
