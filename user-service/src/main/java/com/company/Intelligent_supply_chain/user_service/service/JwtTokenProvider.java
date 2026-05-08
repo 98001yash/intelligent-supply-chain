@@ -3,7 +3,9 @@ package com.company.Intelligent_supply_chain.user_service.service;
 import com.company.Intelligent_supply_chain.user_service.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,37 +21,54 @@ public class JwtTokenProvider {
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
-    private SecretKey getSecretKey(){
-        return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
+    @Value("${jwt.accessTokenExpiration}")
+    private long accessTokenExpiration;
+
+    @Value("${jwt.refreshTokenExpiration}")
+    private long refreshTokenExpiration;
+
+    private SecretKey secretKey;
+
+    @PostConstruct
+    public void init() {
+        this.secretKey = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(User user){
+    public String generateAccessToken(User user) {
+
         return Jwts.builder()
-                .setSubject(user.getId().toString())
+                .subject(user.getId().toString())
                 .claim("email", user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()+1000*40))
-                .signWith(getSecretKey())
+                .claim("role", user.getRole().name())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    private Long getUserIdFromToken(String token){
-        Claims claims = Jwts.parser()
-                .setSigningKey(getSecretKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return Long.valueOf(claims.getSubject());
+    public String generateRefreshToken(User user) {
+
+        return Jwts.builder()
+                .subject(user.getId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public boolean validateToken(String token){
-        try{
-            Jwts.parser()
-                    .setSigningKey(getSecretKey())
-                    .build()
-                    .parseClaimsJws(token);
+    public Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            extractClaims(token);
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
