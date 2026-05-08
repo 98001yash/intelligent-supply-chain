@@ -45,7 +45,7 @@ public class OrderService {
         Order order = modelMapper.map(orderDto, Order.class);
         order.setOrderStatus(OrderStatus.PENDING);
         Order savedOrder = orderRepository.save(order);
-        log.info("✅ Order placed successfully with ID: {}", savedOrder.getId());
+        log.info(" Order placed successfully with ID: {}", savedOrder.getId());
 
         // Initiate Payment
         PaymentDto paymentDto = PaymentDto.builder()
@@ -54,11 +54,11 @@ public class OrderService {
                 .status(PaymentStatus.PENDING)
                 .build();
 
-        log.info("💰 Initiating payment for Order ID: {}", savedOrder.getId());
+        log.info(" Initiating payment for Order ID: {}", savedOrder.getId());
         paymentClient.processPayment(paymentDto);
 
         PaymentDto finalPayment = getFinalPaymentStatus(savedOrder.getId());
-        log.info("📌 Final Payment Status for Order ID {}: {}", savedOrder.getId(), finalPayment.getStatus());
+        log.info(" Final Payment Status for Order ID {}: {}", savedOrder.getId(), finalPayment.getStatus());
 
         if (finalPayment.getStatus() == PaymentStatus.SUCCESS) {
             savedOrder.setOrderStatus(OrderStatus.CONFIRMED);
@@ -73,7 +73,7 @@ public class OrderService {
         }
         else if (finalPayment.getStatus() == PaymentStatus.PENDING) {
             savedOrder.setOrderStatus(OrderStatus.PROCESSING_PAYMENT);
-            log.warn("⌛ Order ID {} is awaiting payment confirmation", savedOrder.getId());
+            log.warn(" Order ID {} is awaiting payment confirmation", savedOrder.getId());
         }
         else {
             savedOrder.setOrderStatus(OrderStatus.CANCELLED);
@@ -123,15 +123,15 @@ public class OrderService {
             case "SUCCESS":
                 order.setOrderStatus(OrderStatus.CONFIRMED);
                 orderRepository.save(order);
-                log.info("✅ Order ID: {} is now CONFIRMED", orderId);
+                log.info(" Order ID: {} is now CONFIRMED", orderId);
 
-                // ✅ Notify Shipment Service to assign a courier
+                //  Notify Shipment Service to assign a courier
                 AssignCourierRequest request = new AssignCourierRequest(orderId, "DHL"); // Example courier
                 try {
                     shipmentClient.assignCourier(request);
-                    log.info("🚚 Shipment Service notified to assign courier for Order ID: {}", orderId);
+                    log.info(" Shipment Service notified to assign courier for Order ID: {}", orderId);
                 } catch (Exception e) {
-                    log.error("⚠️ Failed to notify Shipment Service for Order ID: {}", orderId, e);
+                    log.error(" Failed to notify Shipment Service for Order ID: {}", orderId, e);
                 }
                 break;
 
@@ -144,7 +144,7 @@ public class OrderService {
             default:
                 order.setOrderStatus(OrderStatus.PENDING);
                 orderRepository.save(order);
-                log.warn("⌛ Order ID: {} is still PENDING", orderId);
+                log.warn(" Order ID: {} is still PENDING", orderId);
                 break;
         }
     }
@@ -190,14 +190,14 @@ public class OrderService {
 
 
     public void handlePaymentUpdate(PaymentDto paymentDto){
-        log.info("🔄 Handling payment update for Order ID: {}", paymentDto.getOrderId());
+        log.info(" Handling payment update for Order ID: {}", paymentDto.getOrderId());
 
         Order order = orderRepository.findById(paymentDto.getOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         if(paymentDto.getStatus() == PaymentStatus.SUCCESS){
             order.setOrderStatus(OrderStatus.CONFIRMED);
-            log.info("✅ Order ID {} confirmed after successful payment", order.getId());
+            log.info(" Order ID {} confirmed after successful payment", order.getId());
         } else if(paymentDto.getStatus() == PaymentStatus.FAILED){
             order.setOrderStatus(OrderStatus.CANCELLED);
             log.warn("❌ Order ID {} cancelled due to payment failure", order.getId());
@@ -215,7 +215,7 @@ public class OrderService {
 
             if (PaymentStatus.SUCCESS.equals(paymentStatus.getStatus())) {
                 order.setOrderStatus(OrderStatus.CONFIRMED);
-                log.info("✅ Order ID {} confirmed after successful payment", order.getId());
+                log.info(" Order ID {} confirmed after successful payment", order.getId());
                 orderRepository.save(order);
             }
             else if (PaymentStatus.FAILED.equals(paymentStatus.getStatus())) {
