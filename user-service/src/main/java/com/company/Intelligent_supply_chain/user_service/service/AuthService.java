@@ -42,15 +42,20 @@ public class AuthService {
 
         // Role Assignment Logic
         if ("ADMIN123".equals(signupRequestDto.getAdminCode())) {
+
             user.setRole(Role.ADMIN);
 
-        } else if (signupRequestDto.getRole() == null) {
-            user.setRole(Role.CUSTOMER);
+            log.info("Admin account creation detected for email: {}",
+                    signupRequestDto.getEmail());
 
         } else {
-            user.setRole(signupRequestDto.getRole());
-        }
 
+            // Default public signup role
+            user.setRole(Role.CUSTOMER);
+
+            log.info("Customer account created for email: {}",
+                    signupRequestDto.getEmail());
+        }
         // Encode Password
         user.setPassword(passwordEncoder.encode(signupRequestDto.getPassword()));
 
@@ -96,13 +101,12 @@ public class AuthService {
 
         // Generate Tokens
         String accessToken = jwtTokenProvider.generateAccessToken(user);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+
 
         log.info("Login successful for user ID: {}", user.getId());
 
         return AuthResponseDto.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .userId(user.getId())
                 .email(user.getEmail())
                 .role(user.getRole())

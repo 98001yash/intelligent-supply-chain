@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -63,6 +65,7 @@ public class AuthController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user/{email}")
     public ResponseEntity<UserDto> getUserByEmail(
             @PathVariable String email) {
@@ -73,6 +76,7 @@ public class AuthController {
         return ResponseEntity.ok(userDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user/id/{userId}")
     public ResponseEntity<UserDto> getUserById(
             @PathVariable Long userId) {
@@ -81,5 +85,17 @@ public class AuthController {
 
         UserDto userDto = authService.getUserById(userId);
         return ResponseEntity.ok(userDto);
+    }
+
+
+    @GetMapping("/me")
+    public ResponseEntity<String> getCurrentUser() {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return ResponseEntity.ok(email);
     }
 }

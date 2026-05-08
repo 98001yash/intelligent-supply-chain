@@ -46,16 +46,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(User user) {
-
-        return Jwts.builder()
-                .subject(user.getId().toString())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
     public Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
