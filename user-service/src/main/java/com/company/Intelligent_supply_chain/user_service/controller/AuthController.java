@@ -1,10 +1,12 @@
 package com.company.Intelligent_supply_chain.user_service.controller;
 
-
+import com.company.Intelligent_supply_chain.user_service.dtos.AuthResponseDto;
+import com.company.Intelligent_supply_chain.user_service.dtos.LoginRequestDto;
+import com.company.Intelligent_supply_chain.user_service.dtos.SignupRequestDto;
 import com.company.Intelligent_supply_chain.user_service.dtos.UserDto;
-import com.company.Intelligent_supply_chain.user_service.exceptions.BadRequestException;
 import com.company.Intelligent_supply_chain.user_service.service.AuthService;
 import com.company.Intelligent_supply_chain.user_service.service.JwtTokenProvider;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,46 +23,63 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody AuthRequestDto authRequestDto){
-        try{
-            UserDto userDto = authService.signUp(authRequestDto);
-            return new ResponseEntity<>(userDto, HttpStatus.CREATED);
-        }catch(BadRequestException e){
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Signup failedL "+e.getMessage());
-        }
+    public ResponseEntity<UserDto> signUp(
+            @Valid @RequestBody SignupRequestDto signupRequestDto) {
+
+        log.info("Received signup request for email: {}",
+                signupRequestDto.getEmail());
+
+        UserDto userDto = authService.signUp(signupRequestDto);
+
+        log.info("User signup successful for email: {}",
+                signupRequestDto.getEmail());
+        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequestDto authRequestDto){
-        try{
-            String token = authService.login(authRequestDto);
-            return ResponseEntity.ok(token);
-        }catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Login failed: "+e.getMessage());
-        }
+    public ResponseEntity<AuthResponseDto> login(
+            @Valid @RequestBody LoginRequestDto loginRequestDto) {
+
+        log.info("Received login request for email: {}",
+                loginRequestDto.getEmail());
+
+        AuthResponseDto authResponse =
+                authService.login(loginRequestDto);
+
+        log.info("Login successful for email: {}",
+                loginRequestDto.getEmail());
+        return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping("/validate-token")
-    public Boolean validateToken(@RequestParam("token") String token){
-        return jwtTokenProvider.validateToken(token);
+    public ResponseEntity<Boolean> validateToken(
+            @RequestParam("token") String token) {
+
+        log.info("Validating JWT token");
+
+        boolean isValid = jwtTokenProvider.validateToken(token);
+        return ResponseEntity.ok(isValid);
     }
 
+
     @GetMapping("/user/{email}")
-    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email){
+    public ResponseEntity<UserDto> getUserByEmail(
+            @PathVariable String email) {
+
+        log.info("Fetching user by email: {}", email);
+
         UserDto userDto = authService.getUserByEmail(email);
         return ResponseEntity.ok(userDto);
     }
 
-    @GetMapping("user/id/{userId}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long userId){
-        log.info("Received request tp fetch user by ID: {}",userId);
+    @GetMapping("/user/id/{userId}")
+    public ResponseEntity<UserDto> getUserById(
+            @PathVariable Long userId) {
+
+        log.info("Fetching user by ID: {}", userId);
+
         UserDto userDto = authService.getUserById(userId);
-        log.info("Returning user: {}",userDto);
         return ResponseEntity.ok(userDto);
     }
 }

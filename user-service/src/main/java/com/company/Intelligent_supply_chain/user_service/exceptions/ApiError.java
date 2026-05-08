@@ -1,24 +1,27 @@
 package com.company.Intelligent_supply_chain.user_service.exceptions;
 
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ApiError {
 
-    private LocalDateTime timeStamp;
+    private LocalDateTime timestamp;
+
+    private int status;
+
     private String error;
-    private HttpStatus statusCode;
 
-    public ApiError(){
-        this.timeStamp = LocalDateTime.now();
-    }
+    private String message;
 
-    public ApiError(String error, HttpStatus statusCode){
-        this();
-        this.error = error;
-        this.statusCode = statusCode;
-    }
+    private String path;
+
+    private String service;
 }
