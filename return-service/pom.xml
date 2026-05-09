@@ -71,6 +71,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.company</groupId>
+			<artifactId>shared-kafka-events</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

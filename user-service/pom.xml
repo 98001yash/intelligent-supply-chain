@@ -90,6 +90,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.company</groupId>
+			<artifactId>shared-kafka-events</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.12.6</version>
