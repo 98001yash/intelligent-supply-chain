@@ -1,4 +1,8 @@
-server:
+wt:
+  secretKey: vsjkfuishvruiuhuwrfutgvvbdfilviudvhakdfofureghrevnfskjvieghegkdsldlsfosjfirfreiohfrfkdsfdsugfudsfmdsnvbsfkbjgreighurhlsfjoifjrojvdsmvvbfjihurfhrufhuladfoadfjflisjfreierfrefjri
+
+
+  server:
   port: 8081
 
 spring:
