@@ -1,0 +1,5 @@
+E:\backend-projects\intelligent-supply-chain\shared-kafka-events\src\main\java\com\company\intelligent_supply_chain\events\BaseEvent.java
+E:\backend-projects\intelligent-supply-chain\shared-kafka-events\src\main\java\com\company\intelligent_supply_chain\events\InventoryReservedEvent.java
+E:\backend-projects\intelligent-supply-chain\shared-kafka-events\src\main\java\com\company\intelligent_supply_chain\events\OrderCreatedEvent.java
+E:\backend-projects\intelligent-supply-chain\shared-kafka-events\src\main\java\com\company\intelligent_supply_chain\events\PaymentProcessedEvent.java
+E:\backend-projects\intelligent-supply-chain\shared-kafka-events\src\main\java\com\company\intelligent_supply_chain\events\ShipmentCreatedEvent.java
