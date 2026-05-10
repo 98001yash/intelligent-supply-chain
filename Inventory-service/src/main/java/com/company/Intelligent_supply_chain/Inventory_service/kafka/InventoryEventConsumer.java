@@ -26,7 +26,8 @@ public class InventoryEventConsumer {
 
     @KafkaListener(
             topics = "order-created-topic",
-            groupId = "inventory-group"
+            groupId = "inventory-group",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void consumeOrderCreatedEvent(
             OrderCreatedEvent event
