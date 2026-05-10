@@ -1,6 +1,5 @@
 package com.company.Intelligent_supply_chain.Payment_service.service;
 
-import com.company.Intelligent_supply_chain.Payment_service.clients.OrderClient;
 import com.company.Intelligent_supply_chain.Payment_service.dtos.PaymentDto;
 import com.company.Intelligent_supply_chain.Payment_service.entities.Payment;
 import com.company.Intelligent_supply_chain.Payment_service.enums.PaymentStatus;
@@ -20,7 +19,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final ModelMapper modelMapper;
-    private final OrderClient orderClient;
+
 
     @Transactional
     public PaymentDto processPayment(PaymentDto paymentDto) {
@@ -39,32 +38,31 @@ public class PaymentService {
     }
 
     public PaymentDto getPaymentByOrderId(Long orderId) {
-        log.info("📢 Fetching payment details for Order ID: {}", orderId);
+        log.info(" Fetching payment details for Order ID: {}", orderId);
 
         Payment payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("❌ Payment not found for Order ID: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException(" Payment not found for Order ID: " + orderId));
 
         return modelMapper.map(payment, PaymentDto.class);
     }
 
     public PaymentDto updatePaymentStatus(Long orderId, PaymentStatus status) {
-        log.info("📢 Updating payment status in DB for Order ID: {} to {}", orderId, status);
+        log.info(" Updating payment status in DB for Order ID: {} to {}", orderId, status);
 
         Payment payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("❌ Payment not found for Order ID: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException(" Payment not found for Order ID: " + orderId));
 
         payment.setStatus(status);
         payment.setUpdatedAt(LocalDateTime.now());
         paymentRepository.save(payment);
 
-        log.info("✅ Payment status successfully updated for Order ID: {}. New Status: {}", orderId, status);
+        log.info(" Payment status successfully updated for Order ID: {}. New Status: {}", orderId, status);
 
         try {
-            // ✅ Convert status to uppercase before sending
-            orderClient.updateOrderStatus(payment.getOrderId(), status.name());
-            log.info("✅ OrderService successfully notified about payment update for Order ID: {}", orderId);
+           // orderClient.updateOrderStatus(payment.getOrderId(), status.name());
+            log.info(" OrderService successfully notified about payment update for Order ID: {}", orderId);
         } catch (Exception e) {
-            log.error("⚠️ Failed to notify OrderService about payment update for Order ID: {}", orderId, e);
+            log.error("⚠ Failed to notify OrderService about payment update for Order ID: {}", orderId, e);
         }
 
         return modelMapper.map(payment, PaymentDto.class);
@@ -73,6 +71,6 @@ public class PaymentService {
     public PaymentDto getPaymentStatus(Long orderId) {
         return paymentRepository.findByOrderId(orderId)
                 .map(payment -> modelMapper.map(payment, PaymentDto.class))
-                .orElseThrow(() -> new ResourceNotFoundException("❌ No payment found for Order ID: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException(" No payment found for Order ID: " + orderId));
     }
 }
