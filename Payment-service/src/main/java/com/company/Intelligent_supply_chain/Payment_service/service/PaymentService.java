@@ -117,7 +117,6 @@ public class PaymentService {
             Long orderId,
             PaymentStatus status
     ) {
-
         log.info(
                 "Updating payment status in DB for Order ID: {} to {}",
                 orderId,
