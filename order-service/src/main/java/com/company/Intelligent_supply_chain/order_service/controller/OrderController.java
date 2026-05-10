@@ -67,10 +67,10 @@ public class OrderController {
         return ResponseEntity.ok("Order cancelled successfully");
     }
 
-    @PostMapping("/payment/update")
-    public ResponseEntity<String> handlePaymentUpdate(@RequestBody PaymentDto paymentDto) {
-        orderService.handlePaymentUpdate(paymentDto);
-        return ResponseEntity.ok("Payment update processed");
-    }
+//    @PostMapping("/payment/update")
+//    public ResponseEntity<String> handlePaymentUpdate(@RequestBody PaymentDto paymentDto) {
+//        orderService.handlePaymentUpdate(paymentDto);
+//        return ResponseEntity.ok("Payment update processed");
+//    }
 
 }
