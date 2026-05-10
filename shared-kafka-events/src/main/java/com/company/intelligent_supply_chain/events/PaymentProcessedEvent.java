@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class PaymentProcessedEvent {
+public class PaymentProcessedEvent extends BaseEvent{
 
     private Long orderId;
     private Double amount;

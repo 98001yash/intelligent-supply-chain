@@ -14,7 +14,7 @@ public class PaymentEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void publishPaymentEventProcessedEvent(
+    public void publishPaymentProcessedEvent(
             PaymentProcessedEvent event
     ){
         kafkaTemplate.send("payment-processed-topic",

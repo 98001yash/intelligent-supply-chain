@@ -18,4 +18,6 @@ public class InventoryReservedEvent extends BaseEvent{
     private String skuCode;
     private Integer quantity;
     private boolean reserved;
+
+    private Double totalPrice;
 }
