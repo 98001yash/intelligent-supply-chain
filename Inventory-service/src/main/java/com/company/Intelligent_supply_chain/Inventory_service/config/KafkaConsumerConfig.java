@@ -1,5 +1,7 @@
 package com.company.Intelligent_supply_chain.Inventory_service.config;
 
+import com.company.intelligent_supply_chain.events.OrderCreatedEvent;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -20,13 +22,17 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, OrderCreatedEvent>
+    consumerFactory() {
 
-        JsonDeserializer<Object> deserializer =
-                new JsonDeserializer<>();
+        JsonDeserializer<OrderCreatedEvent> deserializer =
+                new JsonDeserializer<>(OrderCreatedEvent.class);
 
+        // Trust package
         deserializer.addTrustedPackages("*");
 
+        // VERY IMPORTANT
+        // Ignore type headers
         deserializer.setUseTypeHeaders(false);
 
         Map<String, Object> config =
@@ -64,16 +70,15 @@ public class KafkaConsumerConfig {
         );
     }
 
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<
             String,
-            Object
+            OrderCreatedEvent
             > kafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<
                 String,
-                Object
+                OrderCreatedEvent
                 > factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 

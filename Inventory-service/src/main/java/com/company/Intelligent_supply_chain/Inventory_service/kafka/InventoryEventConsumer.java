@@ -53,7 +53,7 @@ public class InventoryEventConsumer {
                         )
                         .timestamp(LocalDateTime.now())
                         .orderId(event.getOrderId())
-                        .skuCode(String.valueOf(event.getSkuCode()))
+                        .skuCode(event.getSkuCode())
                         .quantity(event.getQuantity())
                         .reserved(reserved)
                         .build();
