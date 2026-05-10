@@ -62,7 +62,7 @@ public class PaymentService {
            // orderClient.updateOrderStatus(payment.getOrderId(), status.name());
             log.info(" OrderService successfully notified about payment update for Order ID: {}", orderId);
         } catch (Exception e) {
-            log.error("⚠ Failed to notify OrderService about payment update for Order ID: {}", orderId, e);
+            log.error(" Failed to notify OrderService about payment update for Order ID: {}", orderId, e);
         }
 
         return modelMapper.map(payment, PaymentDto.class);
