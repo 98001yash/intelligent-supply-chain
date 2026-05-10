@@ -1,13 +1,16 @@
 package com.company.Intelligent_supply_chain.Inventory_service.config;
 
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -23,6 +26,8 @@ public class KafkaConsumerConfig {
                 new JsonDeserializer<>();
 
         deserializer.addTrustedPackages("*");
+
+        deserializer.setUseTypeHeaders(false);
 
         Map<String, Object> config =
                 new HashMap<>();
@@ -48,11 +53,6 @@ public class KafkaConsumerConfig {
         );
 
         config.put(
-                JsonDeserializer.TRUSTED_PACKAGES,
-                "*"
-        );
-
-        config.put(
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
                 "earliest"
         );
@@ -66,11 +66,15 @@ public class KafkaConsumerConfig {
 
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object>
-    kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<
+            String,
+            Object
+            > kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, Object>
-                factory =
+        ConcurrentKafkaListenerContainerFactory<
+                String,
+                Object
+                > factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(

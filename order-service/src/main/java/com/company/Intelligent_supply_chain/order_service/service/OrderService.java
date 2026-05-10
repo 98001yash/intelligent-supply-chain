@@ -66,7 +66,7 @@ public class OrderService {
                         .timestamp(LocalDateTime.now())
                         .orderId(savedOrder.getId())
                         .customerId(savedOrder.getCustomerId())
-                        .skuCode(Long.valueOf(savedOrder.getSkuCode()))
+                        .skuCode(savedOrder.getSkuCode())
                         .quantity(savedOrder.getQuantity())
                         .totalPrice(savedOrder.getTotalPrice())
                         .build();

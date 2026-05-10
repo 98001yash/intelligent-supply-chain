@@ -16,7 +16,7 @@ public class OrderCreatedEvent extends BaseEvent{
 
     private Long orderId;
     private Long customerId;
-    private Long skuCode;
+    private String skuCode;
     private Integer quantity;
     private Double totalPrice;
 }

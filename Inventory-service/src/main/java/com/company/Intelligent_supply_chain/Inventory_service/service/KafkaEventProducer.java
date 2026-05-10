@@ -18,7 +18,7 @@ import org.springframework.messaging.support.MessageBuilder;
 public class KafkaEventProducer {
 
     private final InventoryRepository inventoryRepository;
-    private final KafkaTemplate<String, LowStockAlert> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void checkAndPublishLowStockAlert(String skuCode) {
         Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
