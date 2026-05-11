@@ -27,7 +27,8 @@ public class PaymentEventConsumer {
 
     @KafkaListener(
             topics = "inventory-reserved-topic",
-            groupId = "payment-group"
+            groupId = "payment-group",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     public void consumeInventoryReservedEvent(
             InventoryReservedEvent event

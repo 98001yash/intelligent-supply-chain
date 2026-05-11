@@ -1,10 +1,12 @@
 package com.company.Intelligent_supply_chain.Payment_service.config;
 
+
+
+import com.company.intelligent_supply_chain.events.InventoryReservedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -17,13 +19,18 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, InventoryReservedEvent>
+    consumerFactory() {
 
-        JsonDeserializer<Object> deserializer =
-                new JsonDeserializer<>();
+        JsonDeserializer<InventoryReservedEvent>
+                deserializer =
+                new JsonDeserializer<>(
+                        InventoryReservedEvent.class
+                );
 
         deserializer.addTrustedPackages("*");
 
+        // IMPORTANT
         deserializer.setUseTypeHeaders(false);
 
         Map<String, Object> config =
@@ -61,15 +68,16 @@ public class KafkaConsumerConfig {
         );
     }
 
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<
             String,
-            Object
+            InventoryReservedEvent
             > kafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<
                 String,
-                Object
+                InventoryReservedEvent
                 > factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
