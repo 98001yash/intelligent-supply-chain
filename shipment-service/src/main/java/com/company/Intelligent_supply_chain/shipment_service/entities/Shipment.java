@@ -19,7 +19,7 @@ public class Shipment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long paymentId;
+    private Long shipmentId;
 
     private Long orderId;
 
