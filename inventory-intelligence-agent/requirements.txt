@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+kafka-python
+langchain
+langchain-community
+langchain-ollama
+pydantic
