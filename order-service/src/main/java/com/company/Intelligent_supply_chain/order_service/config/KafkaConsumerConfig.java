@@ -1,5 +1,8 @@
 package com.company.Intelligent_supply_chain.order_service.config;
 
+import com.company.intelligent_supply_chain.events.PaymentProcessedEvent;
+import com.company.intelligent_supply_chain.events.ShipmentCreatedEvent;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -19,10 +22,14 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, PaymentProcessedEvent>
+    paymentConsumerFactory() {
 
-        JsonDeserializer<Object> deserializer =
-                new JsonDeserializer<>(Object.class);
+        JsonDeserializer<PaymentProcessedEvent>
+                deserializer =
+                new JsonDeserializer<>(
+                        PaymentProcessedEvent.class
+                );
 
         deserializer.addTrustedPackages("*");
         deserializer.setUseTypeHeaders(false);
@@ -65,17 +72,88 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<
             String,
-            Object
-            > kafkaListenerContainerFactory() {
+            PaymentProcessedEvent
+            > paymentKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<
                 String,
-                Object
+                PaymentProcessedEvent
                 > factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(
-                consumerFactory()
+                paymentConsumerFactory()
+        );
+
+        return factory;
+    }
+
+    // =========================================================
+    // SHIPMENT EVENT CONSUMER FACTORY
+    // =========================================================
+
+    @Bean
+    public ConsumerFactory<String, ShipmentCreatedEvent>
+    shipmentConsumerFactory() {
+
+        JsonDeserializer<ShipmentCreatedEvent>
+                deserializer =
+                new JsonDeserializer<>(
+                        ShipmentCreatedEvent.class
+                );
+
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeHeaders(false);
+
+        Map<String, Object> config =
+                new HashMap<>();
+
+        config.put(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092"
+        );
+
+        config.put(
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "order-shipment-group"
+        );
+
+        config.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class
+        );
+
+        config.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class
+        );
+
+        config.put(
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"
+        );
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<
+            String,
+            ShipmentCreatedEvent
+            > shipmentKafkaListenerContainerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<
+                String,
+                ShipmentCreatedEvent
+                > factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(
+                shipmentConsumerFactory()
         );
 
         return factory;

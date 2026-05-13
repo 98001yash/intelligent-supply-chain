@@ -20,7 +20,7 @@ public class ShipmentEventConsumer {
     @KafkaListener(
             topics = "shipment-created-topic",
             groupId = "order-shipment-group",
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "shipmentKafkaListenerContainerFactory"
     )
     public void consumeShipmentCreatedEvent(
             ShipmentCreatedEvent event

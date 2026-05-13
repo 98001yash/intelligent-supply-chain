@@ -21,7 +21,7 @@ public class PaymentEventConsumer {
     @KafkaListener(
             topics = "payment-processed-topic",
             groupId = "order-payment-group",
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "paymentKafkaListenerContainerFactory"
     )
     public void consumePaymentProcessedEvent(
             PaymentProcessedEvent event
