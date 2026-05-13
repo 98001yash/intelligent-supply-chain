@@ -5,6 +5,7 @@ import com.company.Intelligent_supply_chain.Payment_service.enums.PaymentStatus;
 import com.company.Intelligent_supply_chain.Payment_service.reposirtory.PaymentRepository;
 
 import com.company.intelligent_supply_chain.events.BaseEvent;
+import com.company.intelligent_supply_chain.events.InventoryReleasedEvent;
 import com.company.intelligent_supply_chain.events.InventoryReservedEvent;
 import com.company.intelligent_supply_chain.events.PaymentProcessedEvent;
 
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ public class PaymentEventConsumer {
 
     private final PaymentRepository paymentRepository;
     private final PaymentEventProducer paymentEventProducer;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @KafkaListener(
             topics = "inventory-reserved-topic",
@@ -38,7 +41,12 @@ public class PaymentEventConsumer {
                 event.getOrderId()
         );
 
-        // FORCE SUCCESS FOR TESTING
+        /*
+         * FOR TESTING:
+         *
+         * true  -> payment success
+         * false -> payment failed
+         */
         boolean paymentSuccess = true;
 
         Payment payment =
@@ -55,33 +63,102 @@ public class PaymentEventConsumer {
                         .updatedAt(LocalDateTime.now())
                         .build();
 
-        Payment savedPayment = paymentRepository.save(payment);
+        Payment savedPayment =
+                paymentRepository.save(payment);
 
-        log.info("Payment saved in DB with status: {}",
-                savedPayment.getStatus());
+        log.info(
+                "Payment saved in DB with status: {}",
+                savedPayment.getStatus()
+        );
+
+
+        if (!paymentSuccess) {
+
+            InventoryReleasedEvent releasedEvent =
+                    InventoryReleasedEvent.builder()
+
+                            .eventId(
+                                    BaseEvent.generateEventId()
+                            )
+                            .eventType(
+                                    "INVENTORY_RELEASED"
+                            )
+                            .correlationId(
+                                    event.getCorrelationId()
+                            )
+                            .timestamp(
+                                    LocalDateTime.now()
+                            )
+
+                            .orderId(
+                                    event.getOrderId()
+                            )
+                            .skuCode(
+                                    event.getSkuCode()
+                            )
+                            .quantity(
+                                    event.getQuantity()
+                            )
+                            .reason(
+                                    "PAYMENT_FAILED"
+                            )
+
+                            .build();
+
+            kafkaTemplate.send(
+                    "inventory-release-topic",
+                    releasedEvent
+            );
+            log.info(
+                    "InventoryReleasedEvent published for Order ID: {}",
+                    event.getOrderId()
+            );
+        }
 
         PaymentProcessedEvent processedEvent =
                 PaymentProcessedEvent.builder()
-                        .eventId(BaseEvent.generateEventId())
-                        .eventType("PAYMENT_PROCESSED")
-                        .correlationId(event.getCorrelationId())
-                        .timestamp(LocalDateTime.now())
+                        .eventId(
+                                BaseEvent.generateEventId()
+                        )
+                        .eventType(
+                                "PAYMENT_PROCESSED"
+                        )
+                        .correlationId(
+                                event.getCorrelationId()
+                        )
+                        .timestamp(
+                                LocalDateTime.now()
+                        )
 
-                        .orderId(event.getOrderId())
-                        .amount(event.getTotalPrice())
+                        .orderId(
+                                event.getOrderId()
+                        )
+                        .amount(
+                                event.getTotalPrice()
+                        )
                         .paymentStatus(
                                 savedPayment.getStatus().name()
                         )
+
                         .build();
 
-        // DEBUG LOGS
-        log.info("========== DEBUG PAYMENT STATUS ==========");
-        log.info("paymentSuccess Boolean = {}", paymentSuccess);
-        log.info("savedPayment.getStatus() = {}", savedPayment.getStatus());
-        log.info("processedEvent.getPaymentStatus() = {}",
-                processedEvent.getPaymentStatus());
-        log.info("==========================================");
+        /*
+         * DEBUG LOGS
+         */
+        log.info(
+                "paymentSuccess Boolean = {}",
+                paymentSuccess
+        );
 
+        log.info(
+                "savedPayment.getStatus() = {}",
+                savedPayment.getStatus()
+        );
+
+        log.info(
+                "processedEvent.getPaymentStatus() = {}",
+                processedEvent.getPaymentStatus()
+        );
         paymentEventProducer
                 .publishPaymentProcessedEvent(
                         processedEvent
