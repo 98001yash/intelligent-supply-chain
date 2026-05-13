@@ -35,10 +35,15 @@ public class Payment {
 
 
     @PrePersist
-    public void prePersist(){
+    public void prePersist() {
+
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.status = PaymentStatus.PENDING;
+
+        // only set default if null
+        if (this.status == null) {
+            this.status = PaymentStatus.PENDING;
+        }
     }
 
     @PreUpdate

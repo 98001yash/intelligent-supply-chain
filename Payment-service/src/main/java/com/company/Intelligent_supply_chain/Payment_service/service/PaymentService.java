@@ -40,8 +40,7 @@ public class PaymentService {
                 modelMapper.map(paymentDto, Payment.class);
 
         // Simulate payment processing
-        boolean isPaymentSuccessful =
-                Math.random() > 0.3;
+        boolean isPaymentSuccessful = true;
 
         payment.setStatus(
                 isPaymentSuccessful

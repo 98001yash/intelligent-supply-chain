@@ -1,6 +1,5 @@
 package com.company.Intelligent_supply_chain.Payment_service.kafka;
 
-
 import com.company.Intelligent_supply_chain.Payment_service.entities.Payment;
 import com.company.Intelligent_supply_chain.Payment_service.enums.PaymentStatus;
 import com.company.Intelligent_supply_chain.Payment_service.reposirtory.PaymentRepository;
@@ -39,8 +38,8 @@ public class PaymentEventConsumer {
                 event.getOrderId()
         );
 
-        boolean paymentSuccess =
-                Math.random() > 0.2;
+        // FORCE SUCCESS FOR TESTING
+        boolean paymentSuccess = true;
 
         Payment payment =
                 Payment.builder()
@@ -56,7 +55,10 @@ public class PaymentEventConsumer {
                         .updatedAt(LocalDateTime.now())
                         .build();
 
-        paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+
+        log.info("Payment saved in DB with status: {}",
+                savedPayment.getStatus());
 
         PaymentProcessedEvent processedEvent =
                 PaymentProcessedEvent.builder()
@@ -68,9 +70,17 @@ public class PaymentEventConsumer {
                         .orderId(event.getOrderId())
                         .amount(event.getTotalPrice())
                         .paymentStatus(
-                                payment.getStatus().name()
+                                savedPayment.getStatus().name()
                         )
                         .build();
+
+        // DEBUG LOGS
+        log.info("========== DEBUG PAYMENT STATUS ==========");
+        log.info("paymentSuccess Boolean = {}", paymentSuccess);
+        log.info("savedPayment.getStatus() = {}", savedPayment.getStatus());
+        log.info("processedEvent.getPaymentStatus() = {}",
+                processedEvent.getPaymentStatus());
+        log.info("==========================================");
 
         paymentEventProducer
                 .publishPaymentProcessedEvent(
