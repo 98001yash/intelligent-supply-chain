@@ -15,9 +15,7 @@ import lombok.experimental.SuperBuilder;
 public class InventoryRestoredEvent extends BaseEvent{
 
     private Long orderId;
-
     private String skuCode;
-
     private Integer restoredQuantity;
 
     // SUCCESS/ FAILED

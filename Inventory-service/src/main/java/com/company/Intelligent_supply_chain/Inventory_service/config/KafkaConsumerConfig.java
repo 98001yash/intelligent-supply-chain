@@ -2,6 +2,7 @@ package com.company.Intelligent_supply_chain.Inventory_service.config;
 
 import com.company.intelligent_supply_chain.events.OrderCreatedEvent;
 
+import com.company.intelligent_supply_chain.events.RefundProcessedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -71,6 +72,55 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
+    public ConsumerFactory<String, RefundProcessedEvent>
+    refundConsumerFactory() {
+
+        JsonDeserializer<RefundProcessedEvent>
+                deserializer =
+                new JsonDeserializer<>(
+                        RefundProcessedEvent.class
+                );
+
+        deserializer.addTrustedPackages("*");
+
+        deserializer.setUseTypeHeaders(false);
+
+        Map<String, Object> config =
+                new HashMap<>();
+
+        config.put(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092"
+        );
+
+        config.put(
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "inventory-refund-group"
+        );
+
+        config.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class
+        );
+
+        config.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class
+        );
+
+        config.put(
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"
+        );
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                deserializer
+        );
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<
             String,
             OrderCreatedEvent
@@ -84,6 +134,26 @@ public class KafkaConsumerConfig {
 
         factory.setConsumerFactory(
                 consumerFactory()
+        );
+
+        return factory;
+    }
+
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<
+            String,
+            RefundProcessedEvent
+            > refundKafkaListenerContainerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<
+                String,
+                RefundProcessedEvent
+                > factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(
+                refundConsumerFactory()
         );
 
         return factory;
