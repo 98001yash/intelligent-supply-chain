@@ -77,46 +77,46 @@ public class InventoryService {
         log.info("Stock updated for SKU: {}. New quantity: {}", skuCode, inventory.getQuantity());
 
         // check and publish low stock alert
-       kafkaEventProducer.checkAndPublishLowStockAlert(skuCode);
+        kafkaEventProducer.checkAndPublishLowStockAlert(skuCode);
     }
 
 
     @Transactional
-    public boolean reserveStock(String skuCode, Integer quantity){
+    public boolean reserveStock(String skuCode, Integer quantity) {
         Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
-                .orElseThrow(()->new ResourceNotFoundException("Product not found in inventory"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in inventory"));
 
-        if(inventory.getQuantity()>=quantity){
+        if (inventory.getQuantity() >= quantity) {
             inventory.setQuantity(inventory.getQuantity() - quantity);
-            inventory.setReservedQuantity(inventory.getReservedQuantity()+quantity);
+            inventory.setReservedQuantity(inventory.getReservedQuantity() + quantity);
             inventoryRepository.save(inventory);
-            log.info("stock reserved: {} units for SKU: {}",quantity, skuCode);
+            log.info("stock reserved: {} units for SKU: {}", quantity, skuCode);
             return true;
-        }else {
-            log.warn("Not enough stock available for reservation: {}",skuCode);
+        } else {
+            log.warn("Not enough stock available for reservation: {}", skuCode);
             return false;
         }
     }
 
 
-    public void releaseStock(String skuCode, Integer quantity){
+    public void releaseStock(String skuCode, Integer quantity) {
         Inventory inventory = inventoryRepository.findBySkuCode(skuCode)
-                .orElseThrow(()->new ResourceNotFoundException("Product not found in inventory"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in inventory"));
 
-        if(inventory.getReservedQuantity()>=quantity){
-            inventory.setQuantity(inventory.getQuantity()+ quantity);
-            inventory.setReservedQuantity(inventory.getReservedQuantity()- quantity);
+        if (inventory.getReservedQuantity() >= quantity) {
+            inventory.setQuantity(inventory.getQuantity() + quantity);
+            inventory.setReservedQuantity(inventory.getReservedQuantity() - quantity);
             inventoryRepository.save(inventory);
-            log.info("Reserved stock released: {} units for SKU: {}",quantity, skuCode);
-        }else {
-            log.warn("Attempted to release more stock then reserved for SKU: {}",skuCode);
+            log.info("Reserved stock released: {} units for SKU: {}", quantity, skuCode);
+        } else {
+            log.warn("Attempted to release more stock then reserved for SKU: {}", skuCode);
         }
     }
 
-    public Integer getAvailableStock(String skuCode){
+    public Integer getAvailableStock(String skuCode) {
         return inventoryRepository.findBySkuCode(skuCode)
                 .map(Inventory::getQuantity)
                 .orElse(0);
     }
-    
+
 }
