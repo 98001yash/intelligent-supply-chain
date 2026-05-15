@@ -53,11 +53,8 @@ public class RefundEventConsumer {
             return;
         }
 
-        // TEMPORARY STATIC VALUES
-        // Later we’ll dynamically map SKU + quantity
-
-        String skuCode = "IPHONE_15";
-        Integer quantity = 1;
+        String skuCode = event.getSkuCode();
+        Integer quantity = event.getQuantity();
 
         inventoryService.releaseStock(
                 skuCode,

@@ -101,6 +101,12 @@ public class ReturnEventConsumer {
                                 refundPayment
                                         .getPaymentMethod()
                         )
+                        .skuCode(
+                                event.getSkuCode()
+                        )
+                        .quantity(
+                                event.getQuantity()
+                        )
                         .build();
         paymentEventProducer
                 .publishRefundProcessedEvent(

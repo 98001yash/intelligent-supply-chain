@@ -91,6 +91,12 @@ public class ReturnService {
                         .returnStatus(
                                 savedRequest.getStatus()
                         )
+                        .skuCode(
+                                savedRequest.getSkuCode()
+                        )
+                        .quantity(
+                                savedRequest.getQuantity()
+                        )
                         .build();
 
         returnEventProducer
