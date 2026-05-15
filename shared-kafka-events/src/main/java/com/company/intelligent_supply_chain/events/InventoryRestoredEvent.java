@@ -19,5 +19,5 @@ public class InventoryRestoredEvent extends BaseEvent{
     private Integer restoredQuantity;
 
     // SUCCESS/ FAILED
-    private String restoredStatus;
+    private String restoreStatus;
 }
