@@ -13,5 +13,8 @@ public class ReturnRequestDto {
     private Long orderId;
     private String reason;
     private String status;
+
+    private String skuCode;
+    private Integer quantity;
     private LocalDateTime requestDate;
 }

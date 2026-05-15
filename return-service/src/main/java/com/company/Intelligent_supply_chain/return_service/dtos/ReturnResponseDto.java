@@ -15,4 +15,8 @@ public class ReturnResponseDto {
     private String reason;
     private LocalDateTime requestDate;
     private String status;
+
+    private String skuCode;
+
+    private Integer quantity;
 }

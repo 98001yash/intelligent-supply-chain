@@ -23,6 +23,10 @@ public class ReturnRequest {
     private String status;
     private LocalDateTime requestDate;
 
+    private String skuCode;
+
+    private Integer quantity;
+
     @Version
     private Integer version = 0;
 }
