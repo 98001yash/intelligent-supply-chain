@@ -1,7 +1,6 @@
 package com.company.intelligent_supply_chain.events;
 
 
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -13,9 +12,13 @@ import lombok.experimental.SuperBuilder;
 public class ReturnRequestedEvent extends BaseEvent {
 
     private Long returnRequestId;
+
     private Long orderId;
+
     private String reason;
 
-    // PENDING / APPROVED / REJECTED
     private String returnStatus;
+
+    private String skuCode;
+    private Integer quantity;
 }
