@@ -2,6 +2,7 @@ package com.company.Intelligent_supply_chain.Inventory_service.kafka;
 
 
 import com.company.intelligent_supply_chain.events.InventoryReservedEvent;
+import com.company.intelligent_supply_chain.events.InventoryRestoredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -24,5 +25,16 @@ public class InventoryEventProducer {
         kafkaTemplate.send(TOPIC, event);
 
         log.info("InventoryReservedEvent published successfully");
+    }
+
+
+    public void publishInventoryRestoredEvent(InventoryRestoredEvent event){
+
+        kafkaTemplate.send("inventory-restored-topic",
+                event.getOrderId().toString(),
+                event);
+
+        log.info("InventoryRestoredEvent published for order Id: {}",
+                event.getOrderId());
     }
 }
