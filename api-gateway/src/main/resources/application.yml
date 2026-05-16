@@ -1,95 +1,111 @@
-jwt:
-  secretKey: vsjkfuishvruiuhuwrfutgvvbdfilviudvhakdfofureghrevnfskjvieghegkdsldlsfosjfirfreiohfrfkdsfdsugfudsfmdsnvbsfkbjgreighurhlsfjoifjrojvdsmvvbfjihurfhrufhuladfoadfjflisjfreierfrefjri
 
-server:
-  port: 8081
+  jwt:
+    secretKey: vsjkfuishvruiuhuwrfutgvvbdfilviudvhakdfofureghrevnfskjvieghegkdsldlsfosjfirfreiohfrfkdsfdsugfudsfmdsnvbsfkbjgreighurhlsfjoifjrojvdsmvvbfjihurfhrufhuladfoadfjflisjfreierfrefjri
 
-spring:
-  application:
-    name: api-gateway
+  server:
+    port: 8081
 
-  cloud:
-    gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+  spring:
+    application:
+      name: api-gateway
 
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
+    zipkin:
+      tracing:
+        endpoint: http://localhost:9411/api/v2/spans
 
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
+    cloud:
+      gateway:
 
-      routes:
+        default-filters:
+          - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
+        globalcors:
+          corsConfigurations:
+            '[/**]':
 
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/auth/**
+              allowedOrigins: "*"
 
+              allowedMethods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                - OPTIONS
 
-        - id: order-service
-          uri: lb://ORDER-SERVICE
-          predicates:
-            - Path=/orders/**
+              allowedHeaders: "*"
 
-        - id: payment-service
-          uri: lb://PAYMENT-SERVICE
-          predicates:
-            - Path=/payments/**
+        routes:
 
-        - id: inventory-service
-          uri: lb://INVENTORY-SERVICE
-          predicates:
-            - Path=/inventory/**
+          - id: user-service
+            uri: lb://USER-SERVICE
+            predicates:
+              - Path=/auth/**
 
-        - id: shipment-service
-          uri: lb://SHIPMENT-SERVICE
-          predicates:
-            - Path=/shipments/**
+          - id: order-service
+            uri: lb://ORDER-SERVICE
+            predicates:
+              - Path=/orders/**
 
+          - id: payment-service
+            uri: lb://PAYMENT-SERVICE
+            predicates:
+              - Path=/payments/**
 
-        - id: return-service
-          uri: lb://RETURN-SERVICE
-          predicates:
-            - Path=/returns/**
+          - id: inventory-service
+            uri: lb://INVENTORY-SERVICE
+            predicates:
+              - Path=/inventory/**
 
-  zipkin:
+          - id: shipment-service
+            uri: lb://SHIPMENT-SERVICE
+            predicates:
+              - Path=/shipments/**
+
+          - id: return-service
+            uri: lb://RETURN-SERVICE
+            predicates:
+              - Path=/returns/**
+
+          - id: notification-service
+            uri: lb://NOTIFICATION-SERVICE
+            predicates:
+              - Path=/notifications/**
+
+  management:
+
     tracing:
-      endpoint: http://localhost:9411/api/v2/spans
+      sampling:
+        probability: 1.0
 
-management:
-  tracing:
-    sampling:
-      probability: 1.0
+    endpoint:
+      prometheus:
+        enabled: true
 
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,prometheus
 
+    metrics:
+      tags:
+        application: ${spring.application.name}
 
-feign:
-  hystrix:
-    enabled: true
+  feign:
+    hystrix:
+      enabled: true
 
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
 
-  instance:
-    prefer-ip-address: true
+  logging:
+    level:
+      root: INFO
 
-
-logging:
-  level:
-    org.springframework.cloud.gateway: INFO
-    reactor.netty.http.client: INFO
+      org.springframework.cloud.gateway: INFO
+      reactor.netty.http.client: INFO
+      reactor.netty.http.server: INFO
