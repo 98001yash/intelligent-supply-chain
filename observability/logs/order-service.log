@@ -1009,3 +1009,8 @@
 2026-05-16 08:33:47 [org.springframework.kafka.KafkaListenerEndpointContainer#2-0-C-1] INFO  o.s.k.l.KafkaMessageListenerContainer - order-shipment-group: partitions assigned: [shipment-created-topic-0, shipment-created-topic-1, shipment-created-topic-2]
 2026-05-16 08:33:47 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  o.s.k.l.KafkaMessageListenerContainer - order-return-group: partitions assigned: [inventory-restored-topic-0]
 2026-05-16 08:38:42 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
+2026-05-16 08:42:44 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  o.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-order-return-group-2, groupId=order-return-group] Node -1 disconnected.
+2026-05-16 08:42:44 [org.springframework.kafka.KafkaListenerEndpointContainer#1-0-C-1] INFO  o.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-order-payment-group-3, groupId=order-payment-group] Node -1 disconnected.
+2026-05-16 08:42:44 [org.springframework.kafka.KafkaListenerEndpointContainer#2-0-C-1] INFO  o.apache.kafka.clients.NetworkClient - [Consumer clientId=consumer-order-shipment-group-1, groupId=order-shipment-group] Node -1 disconnected.
+2026-05-16 08:43:42 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
+2026-05-16 08:48:42 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
