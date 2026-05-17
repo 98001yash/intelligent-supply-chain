@@ -203,3 +203,4 @@ Using generated security password: 2ceda717-f064-4735-9d1a-d1f2f684839c
 2026-05-17 07:18:42 [reactor-http-nio-6] ERROR o.s.w.s.a.HttpWebHandlerAdapter - [cc012dbc-11] Error [java.lang.UnsupportedOperationException] for HTTP GET "/payments/order/1", but ServerHttpResponse already committed (503 SERVICE_UNAVAILABLE)
 2026-05-17 07:18:43 [reactor-http-nio-6] INFO  c.c.I.a.s.JwtAuthenticationFilter - Authenticated user: yash123@gmail.com
 2026-05-17 07:18:43 [reactor-http-nio-6] ERROR o.s.w.s.a.HttpWebHandlerAdapter - [cc012dbc-13] Error [java.lang.UnsupportedOperationException] for HTTP GET "/payments/order/1", but ServerHttpResponse already committed (503 SERVICE_UNAVAILABLE)
+2026-05-17 07:23:16 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration

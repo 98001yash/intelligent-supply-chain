@@ -164,6 +164,14 @@
 
 
 
+    bulkhead:
+
+      instances:
+        paymentServiceBulkhead:
+          max-concurrent-calls: 5
+          max-wait-duration: 1s
+
+
   feign:
     hystrix:
       enabled: true
