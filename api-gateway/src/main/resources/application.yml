@@ -1,4 +1,3 @@
-
   jwt:
     secretKey: vsjkfuishvruiuhuwrfutgvvbdfilviudvhakdfofureghrevnfskjvieghegkdsldlsfosjfirfreiohfrfkdsfdsugfudsfmdsnvbsfkbjgreighurhlsfjoifjrojvdsmvvbfjihurfhrufhuladfoadfjflisjfreierfrefjri
 
@@ -6,6 +5,7 @@
     port: 8081
 
   spring:
+
     application:
       name: api-gateway
 
@@ -14,6 +14,7 @@
         endpoint: http://localhost:9411/api/v2/spans
 
     cloud:
+
       gateway:
 
         default-filters:
@@ -21,6 +22,7 @@
 
         globalcors:
           corsConfigurations:
+
             '[/**]':
 
               allowedOrigins: "*"
@@ -38,15 +40,15 @@
 
           - id: user-service
             uri: lb://USER-SERVICE
+
             predicates:
               - Path=/auth/**
 
           - id: order-service
             uri: lb://ORDER-SERVICE
+
             predicates:
               - Path=/orders/**
-
-
 
           - id: payment-service
             uri: lb://PAYMENT-SERVICE
@@ -55,31 +57,46 @@
               - Path=/payments/**
 
             filters:
+
+              - name: Retry
+
+                args:
+                  retries: 3
+                  statuses:
+                    - INTERNAL_SERVER_ERROR
+                    - BAD_GATEWAY
+                    - SERVICE_UNAVAILABLE
+                  methods:
+                    - GET
+                    - POST
+
               - name: CircuitBreaker
 
                 args:
                   name: paymentServiceCircuitBreaker
                   fallbackUri: forward:/fallback/payment
 
-
-
           - id: inventory-service
             uri: lb://INVENTORY-SERVICE
+
             predicates:
               - Path=/inventory/**
 
           - id: shipment-service
             uri: lb://SHIPMENT-SERVICE
+
             predicates:
               - Path=/shipments/**
 
           - id: return-service
             uri: lb://RETURN-SERVICE
+
             predicates:
               - Path=/returns/**
 
           - id: notification-service
             uri: lb://NOTIFICATION-SERVICE
+
             predicates:
               - Path=/notifications/**
 
@@ -102,11 +119,46 @@
       tags:
         application: ${spring.application.name}
 
+  resilience4j:
+
+    circuitbreaker:
+
+      instances:
+
+        paymentServiceCircuitBreaker:
+
+          registerHealthIndicator: true
+
+          slidingWindowSize: 10
+
+          minimumNumberOfCalls: 5
+
+          permittedNumberOfCallsInHalfOpenState: 3
+
+          automaticTransitionFromOpenToHalfOpenEnabled: true
+
+          waitDurationInOpenState: 10s
+
+          failureRateThreshold: 50
+
+          eventConsumerBufferSize: 10
+
+    retry:
+
+      instances:
+
+        paymentServiceRetry:
+
+          maxAttempts: 3
+
+          waitDuration: 2s
+
   feign:
     hystrix:
       enabled: true
 
   eureka:
+
     client:
       service-url:
         defaultZone: http://localhost:8761/eureka/
@@ -115,9 +167,13 @@
       prefer-ip-address: true
 
   logging:
+
     level:
+
       root: INFO
 
       org.springframework.cloud.gateway: INFO
+
       reactor.netty.http.client: INFO
+
       reactor.netty.http.server: INFO
