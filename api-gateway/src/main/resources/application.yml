@@ -153,6 +153,17 @@
 
           waitDuration: 2s
 
+
+    timelimiter:
+
+      instances:
+
+        paymentServiceCircuitBreaker:
+
+          timeout-duration: 3s
+
+
+
   feign:
     hystrix:
       enabled: true

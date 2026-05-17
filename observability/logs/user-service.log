@@ -3,3 +3,8 @@
 2026-05-17 07:01:08 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
 2026-05-17 07:06:08 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
 2026-05-17 07:11:08 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
+2026-05-17 07:14:00 [http-nio-9020-exec-3] INFO  c.c.I.u.controller.AuthController - Received login request for email: yash123@gmail.com
+2026-05-17 07:14:00 [http-nio-9020-exec-3] INFO  c.c.I.u.service.AuthService - Login attempt for email: yash123@gmail.com
+2026-05-17 07:14:00 [http-nio-9020-exec-3] INFO  c.c.I.u.service.AuthService - Login successful for user ID: 3
+2026-05-17 07:14:00 [http-nio-9020-exec-3] INFO  c.c.I.u.controller.AuthController - Login successful for email: yash123@gmail.com
+2026-05-17 07:16:08 [AsyncResolver-bootstrap-executor-%d] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
