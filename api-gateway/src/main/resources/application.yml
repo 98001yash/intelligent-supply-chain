@@ -1,3 +1,4 @@
+
   jwt:
     secretKey: vsjkfuishvruiuhuwrfutgvvbdfilviudvhakdfofureghrevnfskjvieghegkdsldlsfosjfirfreiohfrfkdsfdsugfudsfmdsnvbsfkbjgreighurhlsfjoifjrojvdsmvvbfjihurfhrufhuladfoadfjflisjfreierfrefjri
 
@@ -5,7 +6,6 @@
     port: 8081
 
   spring:
-
     application:
       name: api-gateway
 
@@ -14,9 +14,7 @@
         endpoint: http://localhost:9411/api/v2/spans
 
     cloud:
-
       gateway:
-
         default-filters:
           - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
@@ -26,7 +24,6 @@
             '[/**]':
 
               allowedOrigins: "*"
-
               allowedMethods:
                 - GET
                 - POST
@@ -50,14 +47,13 @@
             predicates:
               - Path=/orders/**
 
+
           - id: payment-service
             uri: lb://PAYMENT-SERVICE
 
             predicates:
               - Path=/payments/**
-
             filters:
-
               - name: Retry
 
                 args:
@@ -66,6 +62,7 @@
                     - INTERNAL_SERVER_ERROR
                     - BAD_GATEWAY
                     - SERVICE_UNAVAILABLE
+
                   methods:
                     - GET
                     - POST
@@ -76,7 +73,6 @@
                   name: paymentServiceCircuitBreaker
                   fallbackUri: forward:/fallback/payment
 
-
           - id: inventory-service
             uri: lb://INVENTORY-SERVICE
 
@@ -84,12 +80,9 @@
               - Path=/inventory/**
 
             filters:
-
               - name: Retry
-
                 args:
                   retries: 3
-
                   statuses:
                     - INTERNAL_SERVER_ERROR
                     - BAD_GATEWAY
@@ -100,12 +93,9 @@
                     - POST
 
               - name: CircuitBreaker
-
                 args:
                   name: inventoryServiceCircuitBreaker
                   fallbackUri: forward:/fallback/inventory
-
-
 
           - id: shipment-service
             uri: lb://SHIPMENT-SERVICE
@@ -144,60 +134,74 @@
       tags:
         application: ${spring.application.name}
 
+
+
   resilience4j:
 
     circuitbreaker:
 
       instances:
 
+
         paymentServiceCircuitBreaker:
-
           registerHealthIndicator: true
-
           slidingWindowSize: 10
-
           minimumNumberOfCalls: 5
-
           permittedNumberOfCallsInHalfOpenState: 3
-
           automaticTransitionFromOpenToHalfOpenEnabled: true
-
           waitDurationInOpenState: 10s
-
           failureRateThreshold: 50
+          eventConsumerBufferSize: 10
 
+
+
+        inventoryServiceCircuitBreaker:
+          registerHealthIndicator: true
+          slidingWindowSize: 10
+          minimumNumberOfCalls: 5
+          permittedNumberOfCallsInHalfOpenState: 3
+          automaticTransitionFromOpenToHalfOpenEnabled: true
+          waitDurationInOpenState: 10s
+          failureRateThreshold: 50
           eventConsumerBufferSize: 10
 
     retry:
-
       instances:
 
         paymentServiceRetry:
 
           maxAttempts: 3
-
           waitDuration: 2s
 
+        inventoryServiceRetry:
+
+          maxAttempts: 3
+          waitDuration: 2s
 
     timelimiter:
 
       instances:
-
         paymentServiceCircuitBreaker:
-
           timeout-duration: 3s
 
 
+        inventoryServiceCircuitBreaker:
+          timeout-duration: 3s
 
     bulkhead:
-
       instances:
         paymentServiceBulkhead:
+
           max-concurrent-calls: 5
           max-wait-duration: 1s
 
+        inventoryServiceBulkhead:
+
+          max-concurrent-calls: 5
+          max-wait-duration: 1s
 
   feign:
+
     hystrix:
       enabled: true
 
@@ -217,7 +221,5 @@
       root: INFO
 
       org.springframework.cloud.gateway: INFO
-
       reactor.netty.http.client: INFO
-
       reactor.netty.http.server: INFO
