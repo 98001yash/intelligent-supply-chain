@@ -17,11 +17,19 @@ public class FallbackController {
         Map<String, String> response = new HashMap<>();
 
         response.put("message","Payment service is temporarily unavailable. Please try again later.");
-
         response.put("status","SERVICE_UNAVAILABLE");
-
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(response);
+    }
+
+    @GetMapping("/fallback/inventory")
+    public ResponseEntity<Map<String, String>> inventoryFallback(){
+        Map<String, String> response =  new HashMap<>();
+
+        response.put("message","inventory service is temporarily unavailable. Please try again later.");
+        response.put("status","SERVICE_UNAVAILABLE");
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
 
 
