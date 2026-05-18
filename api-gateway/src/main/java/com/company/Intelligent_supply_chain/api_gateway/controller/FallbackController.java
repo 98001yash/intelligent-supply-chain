@@ -33,4 +33,22 @@ public class FallbackController {
     }
 
 
+    @GetMapping("/fallback/shipment")
+    public ResponseEntity<Map<String, String>>
+    shipmentFallback() {
+
+        Map<String, String> response =
+                new HashMap<>();
+        response.put(
+                "message",
+                "Shipment Service is temporarily unavailable. Please try again later."
+        );
+        response.put(
+                "status",
+                "SERVICE_UNAVAILABLE"
+        );
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(response);
+    }
 }
