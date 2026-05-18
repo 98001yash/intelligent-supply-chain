@@ -70,7 +70,36 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
             String userId = claims.getSubject();
             String email = claims.get("email", String.class);
+
             String role = claims.get("role", String.class);
+
+            // INVENTORY APIs -> ADMIN ONLY
+            if (path.startsWith("/inventory")
+                    && !"ADMIN".equals(role)) {
+
+                log.error(
+                        "Access denied for user role: {}",
+                        role
+                );
+                exchange.getResponse()
+                        .setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse()
+                        .setComplete();
+            }
+
+            // SHIPMENT APIs -> ADMIN ONLY
+            if (path.startsWith("/shipments")
+                    && !"ADMIN".equals(role)) {
+
+                log.error(
+                        "Access denied for user role: {}",
+                        role
+                );
+                exchange.getResponse()
+                        .setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse()
+                        .setComplete();
+            }
 
             log.info("Authenticated user: {}", email);
 
@@ -105,5 +134,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return -1;
+    }
+
+    public void denyAccess(ServerWebExchange exchange) {
+        exchange.getResponse()
+                .setStatusCode(HttpStatus.FORBIDDEN);
+
     }
 }
