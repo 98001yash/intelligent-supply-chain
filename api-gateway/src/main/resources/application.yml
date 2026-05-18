@@ -97,11 +97,30 @@
                   name: inventoryServiceCircuitBreaker
                   fallbackUri: forward:/fallback/inventory
 
+
           - id: shipment-service
             uri: lb://SHIPMENT-SERVICE
 
             predicates:
               - Path=/shipments/**
+
+            filters:
+              - name: Retry
+                args:
+                  retries: 3
+                  statuses:
+                    - INTERNAL_SERVER_ERROR
+                    - BAD_GATEWAY
+                    - SERVICE_UNAVAILABLE
+
+                  methods:
+                    - GET
+                    - POST
+              - name: CircuitBreaker
+
+                args:
+                  name: shipmentServiceCircuitBreaker
+                  fallbackUri: forward:/fallback/shipment
 
           - id: return-service
             uri: lb://RETURN-SERVICE
